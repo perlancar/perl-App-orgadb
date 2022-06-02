@@ -14,7 +14,7 @@ use Perinci::CmdLine::Any;
 Perinci::CmdLine::Any->new(
     url => '/App/orgadb/',
     subcommands => {
-        select => {url => '/App/orgadb/select_addressbook_entry'},
+        select => {url => '/App/orgadb/select_addressbook_entries'},
     },
     default_subcommand => 'select',
 )->run;
