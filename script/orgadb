@@ -1,0 +1,117 @@
+#!perl
+
+use 5.010001;
+use strict;
+use warnings;
+
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
+
+use Perinci::CmdLine::Any;
+
+Perinci::CmdLine::Any->new(
+    url => '/App/orgadb/',
+    subcommands => {
+        select => {url => '/App/orgadb/select_addressbook_entry'},
+    },
+    default_subcommand => 'select',
+)->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+First, create a configuration file F<~/.config/orgadb.conf> containing something
+like the following (use INI syntax, or L<IOD> to be more exact):
+
+ ; specify your addressbook files here
+ files = ~/addressbook.org
+ files = /path/to/another-addressbook.org
+
+Suppose you have F<~/addressbook.org> like the following:
+
+ * family
+ ** iwan
+ - home phone :: 555-1234-567
+ - cell :: 555-8765-432
+ ** restu
+ - cell :: 555-1234-568
+ ** satya
+
+ * family > wife's
+ ** roger
+ ** emily
+ ** cynthia
+
+ * work > acme inc
+ ** bugs
+ ** daffy
+
+ * work > acme inc > ex
+ ** marvin
+
+ * work > newsradio
+ ** dave
+ ** lisa
+ - cell :: 555-1234-710
+ - home phone :: 555-1234-712
+ - note ::
+   + do not call after office hours
+ ** joe
+ - cell :: 555-1234-569
+ - cell :: 555-1234-570
+ ** beth
+
+ * work > newsradio > ex
+ ** matthew
+
+To list entries that match the string 'sa':
+
+ % orgadb sa
+ satya
+ lisa
+
+To display Lisa's full entry:
+
+ % orgadb lisa -l
+ ** lisa
+ - cell :: 555-1234-710
+ - home phone :: 555-1234-712
+ - note ::
+   + do not call cell after office hours
+
+To get Lisa's cell phone number:
+
+ % orgadb lisa cell
+ - cell :: 555-1234-710
+
+To get Lisa's cell phone number (only the number, without the field namae):
+
+ % orgadb lisa cell -F
+ 555-1234-710
+
+To get all Lisa's phone numbers:
+
+ % orgadb lisa '/phone|cell/'
+ - cell :: 555-1234-710
+ - home phone :: 555-1234-712
+
+
+=head1 DESCRIPTION
+
+B<orgadb> is a tool for your addressbook written in Org format. It currently
+can: find/show addressbook entries/fields.
+
+The addressbook must be written in a certain structure, as shown in the
+Synopsis: the first heading level is for putting categories.
+
+
+=head1 SEE ALSO
+
+L<orgsel> (from L<App::orgsel>) is a more generic selection tool for Org
+document.
+
+Information about the Org format: L<https://orgmode.org>
