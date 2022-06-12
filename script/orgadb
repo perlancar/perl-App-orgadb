@@ -11,13 +11,22 @@ use warnings;
 
 use Perinci::CmdLine::Any;
 
-Perinci::CmdLine::Any->new(
-    url => '/App/orgadb/',
-    subcommands => {
-        select => {url => '/App/orgadb/select_addressbook_entries'},
-    },
-    default_subcommand => 'select',
-)->run;
+# with subcommands, -c and -C checking to use with common_optswere not fixed yet
+#my $cmdline = Perinci::CmdLine::Any->new(
+#    url => '/App/orgadb/',
+#    subcommands => {
+#        select => {url => '/App/orgadb/select_addressbook_entries'},
+#    },
+#    default_subcommand => 'select',
+#);
+
+my $cmdline = Perinci::CmdLine::Any->new(
+    summary => 'Select entries and fields from Org addressbook',
+    url => '/App/orgadb/select_addressbook_entries',
+    log => 1,
+);
+
+$cmdline->run;
 
 # ABSTRACT:
 # PODNAME:
@@ -68,39 +77,92 @@ Suppose you have F<~/addressbook.org> like the following:
  * work > newsradio > ex
  ** matthew
 
-To list entries that match the string 'sa':
+To list all entries:
+
+ % orgadb
+ family/iwan
+ family/restu
+ family/satya
+ family > wife's/roger
+ family > wife's/emily
+ family > wife's/cynthia
+ work > acme inc/bugs
+ work > acme inc/daffy
+ work > acme inc > ex/ marvin
+ work > newsradio/dave
+ work > newsradio/lisa
+ work > newsradio/joe
+ work > newsradio/beth
+ work > newsradio > ex/matthew
+
+To list entries that match the string 'sa' (the categories will be shown also as
+the path prefix for each matching entry title):
 
  % orgadb sa
+ family/satya
+ work > newsradio/lisa
+
+To hide the category, add C<-C>:
+
+ % orgadb -C sa
  satya
  lisa
+
+To search against the category, use the C<-c> option:
+
+ % orgadb sa -c work; # search for 'sa' from work
+ work > newsradio/lisa
+
+ % orgadb sa -c work; # list all entries from work
+ work > newsradio/dave
+ work > newsradio/lisa
+ work > newsradio/joe
+ work > newsradio/beth
+ work > newsradio > ex/matthew
 
 To display Lisa's full entry:
 
  % orgadb lisa -l
+ * work > newsradio
  ** lisa
  - cell :: 555-1234-710
  - home phone :: 555-1234-712
  - note ::
    + do not call cell after office hours
 
-To get Lisa's cell phone number:
+ % orgadb lisa -Cl  ;# do not show the category
+ ** lisa
+ - cell :: 555-1234-710
+ - home phone :: 555-1234-712
+ - note ::
+   + do not call cell after office hours
+
+To get Lisa's cell phone number (search field):
 
  % orgadb lisa cell
- - cell :: 555-1234-710
+ work > newsradio/lisa
+   - cell :: 555-1234-710
 
-To get Lisa's cell phone number (only the number, without the field namae):
+(NOT YET IMPLEMENTED) To get Lisa's cell phone number (only the number, without
+the field namae):
 
  % orgadb lisa cell -F
  555-1234-710
 
 To get all Lisa's phone numbers:
 
- % orgadb lisa '/phone|cell/'
+ % orgadb lisa -F '/phone|cell/'
  - cell :: 555-1234-710
  - home phone :: 555-1234-712
 
+(NOT YET IMPLEMENTED) Formatting:
+
+ TODO
+
 
 =head1 DESCRIPTION
+
+B<EARLY RELEASE, MANY OPTIONS ARE NOT YET ADDED OR IMPLEMETED.>
 
 B<orgadb> is a tool for your addressbook written in Org format. It currently
 can: find/show addressbook entries/fields.
