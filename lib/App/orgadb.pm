@@ -24,6 +24,7 @@ our %argspecs_common = (
         'x.name.is_plural' => 1,
         'x.name.singular' => 'file',
         schema => ['array*', of=>'filename*', min_len=>1],
+        cmdline_aliases=>{f=>{}},
         tags => ['category:input'],
     },
 );
