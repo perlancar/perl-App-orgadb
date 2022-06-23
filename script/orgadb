@@ -183,9 +183,68 @@ CLI to find/show addressbook entries/fields.
 
 =back
 
-The addressbook must be written in a certain structure, as shown in the
+The addressbook must be written following a certain structure, as shown in the
 Synopsis. The first heading level is for putting categories. The second heading
 level is where you put all your entries. Fields are written in description list.
+
+
+=head1 FAQ
+
+=head2 Why doesn't 'orgadb' list all my entries? It returns nothing.
+
+ % orgadb
+ % _
+
+Probably because the addressbook is not written following the expected
+structure, where the entries should be as I<level-2> headings. You might use the
+level-1 heading:
+
+ * jimmy
+ - cell :: 555-123-4567
+ * john
+ * jack
+
+or use deeper-than-level-2 heading:
+
+ * friends
+ ** high school
+ *** jimmy
+ - cell :: 555-123-4567
+ *** john
+ *** jack
+
+This is the correct structure:
+
+ * friends > high school
+ ** jimmy
+ - cell :: 555-123-4567
+ ** john
+ ** jack
+
+When queried:
+
+ % orgadb
+ friends > high school/jimmy
+ friends > high school/john
+ friends > high school/jack
+
+=head2 Why can't I search against entry fields? It returns nothing. (I can list entries.)
+
+ % orgadb jimmy cell
+ % _
+
+Probably because the addressbook is not written following the expected
+structure, where you should use a description list. A common mistake is writing
+a description list like this:
+
+ ** jimmy
+ - cell: 555-123-4567
+
+This is still an unordered list in Org, you have to use C< :: > (space, followed
+by two colons, followed by another space) as the separator:
+
+ ** jimmy
+ - cell :: 555-123-4567
 
 
 =head1 SEE ALSO
