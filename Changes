@@ -1,7 +1,5 @@
 0.002   2022-06-24  Released-By: PERLANCAR; Urgency: low
 
-        - No functional changes.
-
         - [ux] Add shortcut alias -f for --file.
 
         - [doc] Tweak/fix documentation, add FAQ section.
