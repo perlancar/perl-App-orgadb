@@ -29,11 +29,12 @@ our %argspecs_common = (
     },
 );
 
-our %argspec_category = (
-    entry => {
+our %argspecopt_category = (
+    category => {
         summary => 'Find entry by string or regex search against the category title',
         schema => 'str_or_re*',
         cmdline_aliases=>{c=>{}},
+        tags => ['category:filter'],
     },
 );
 
@@ -42,14 +43,19 @@ our %argspecopt0_entry = (
         summary => 'Find entry by string or regex search against its title',
         schema => 'str_or_re*',
         pos => 0,
+        tags => ['category:filter'],
     },
 );
 
 our %argspecopt1_field = (
-    field => {
-        summary => 'Find field by string or regex search',
-        schema => 'str_or_re*',
+    fields => {
+        'x.name.is_plural' => 1,
+        'x.name.singular' => 'field',
+        summary => 'Find (sub)fields by string or regex search',
+        schema => ['array*', of=>'str_or_re*'],
         pos => 1,
+        slurpy => 1,
+        tags => ['category:filter'],
     },
 );
 
@@ -73,7 +79,7 @@ sub _select_addressbook_entries {
 
     my $res = [200, "OK", ""];
 
-    my @entries;
+    my @matching_entries;
     my ($re_category, $re_entry, $re_field);
   FIND_ENTRIES: {
         require Data::CSel;
@@ -111,10 +117,10 @@ sub _select_addressbook_entries {
             my @nodes = Data::CSel::csel({
                 class_prefixes => ["Org::Element"],
             }, $expr, $tree);
-            push @entries, @nodes;
+            push @matching_entries, @nodes;
         }
     } # FIND_ENTRIES
-    log_trace "Number of matching entries: %d", scalar(@entries);
+    log_trace "Number of matching entries: %d", scalar(@matching_entries);
 
   DISPLAY_ENTRIES: {
         my ($clrtheme, $clrtheme_obj);
@@ -132,32 +138,38 @@ sub _select_addressbook_entries {
                 {ns_prefixes=>['ColorTheme::Search','ColorTheme','']}, $clrtheme);
         };
 
-        my ($re_field, $expr_field);
+        my ($expr_field, @re_field);
       ENTRY:
-        for my $entry (@entries) {
+        for my $entry (@matching_entries) {
 
-            my @fields;
-            if (defined $args{field}) {
+            my @matching_fields;
+            if (defined($args{fields}) && @{ $args{fields} }) {
                 unless (defined $expr_field) {
                     $expr_field = '';
-                    $expr_field .= 'ListItem[desc_term.text';
-                    if (ref $args{field} eq 'Regexp') {
-                        $re_field = $args{field};
-                    } else {
-                        $re_field = quotemeta($args{field});
-                        $re_field = qr/$re_field/;
+                    for my $field_term (@{ $args{fields} }) {
+                        $expr_field .= ' ' if $expr_field;
+                        $expr_field .= 'ListItem[desc_term.text';
+                        my $re_field;
+                        if (ref $field_term eq 'Regexp') {
+                            $re_field = $field_term;
+                        } else {
+                            $re_field = quotemeta($field_term);
+                            $re_field = qr/$re_field/;
+                        }
+                        $expr_field .= " =~ " . Data::Dmp::dmp($re_field) . "]";
+                        push @re_field, $re_field;
                     }
-                    $expr_field .= " =~ " . Data::Dmp::dmp($re_field) . "]";
                 }
 
-                @fields = Data::CSel::csel({
+                @matching_fields = Data::CSel::csel({
                     class_prefixes => ["Org::Element"],
                 }, $expr_field, $entry);
 
-                next ENTRY unless @fields;
+                next ENTRY unless @matching_fields;
             }
 
-            unless ($args{detail} && $args{hide_entry}) {
+            unless ($args{hide_entry}) {
+                $res->[2] .= "** ";
                 unless ($args{hide_category}) {
                     $res->[2] .= _highlight(
                         $clrtheme_obj,
@@ -172,17 +184,31 @@ sub _select_addressbook_entries {
                 $res->[2] .= "\n";
             }
 
-            if ($args{detail} && !defined($args{field})) {
-                $res->[2] .= $entry->children_as_string;
-            } elsif (@fields) {
-                for my $field (@fields) {
-                    my $str = _highlight(
-                        $clrtheme_obj,
-                        $re_field,
-                        $field->desc_term->text,
-                    ) . " ::" . $field->children_as_string;
-                    $str =~ s/^/  /gm;
-                    $res->[2] .= $str;
+            my $re_field;
+            $re_field = join "|", @re_field if @re_field;
+            if ($args{detail} || ( !defined($args{fields} || !@{$args{fields}} ))) {
+                my $str = $entry->children_as_string;
+                $str = _highlight(
+                    $clrtheme_obj,
+                    $re_field,
+                    $str) if defined $re_field;
+                $res->[2] .= $str;
+            } elsif (@matching_fields) {
+                for my $field (@matching_fields) {
+
+                    unless ($args{hide_field_name}) {
+                        my $field_name = '';
+                        $field_name = _highlight(
+                            $clrtheme_obj,
+                            $re_field,
+                            $field->bullet . ' ' . $field->desc_term->text,
+                        ) . " ::";
+                        $res->[2] .= $field_name;
+                    }
+
+                    my $field_value = $field->children_as_string;
+                    $field_value =~ s/\A\s+//s if $args{hide_field_name};
+                    $res->[2] .= $field_value;
                 }
             }
         }
@@ -193,36 +219,44 @@ sub _select_addressbook_entries {
 
 $SPEC{select_addressbook_entries} = {
     v => 1.1,
-    summary => 'Select Org document elements using CSel (CSS-selector-like) syntax',
+    summary => 'Select Org addressbook entries/fields/subfields',
     args => {
         %argspecs_common,
         %argspecopt0_entry,
         %argspecopt1_field,
-        category => {
-            schema => 'str_or_re*',
-            cmdline_aliases=>{c=>{}},
-        },
+        %argspecopt_category,
         hide_category => {
             summary => 'Do not show category',
             schema => 'true*',
             cmdline_aliases => {C=>{}},
+            tags => ['category:display'],
         },
         hide_entry => {
-            summary => 'Do not entry headline',
+            summary => 'Do not show entry headline',
             schema => 'true*',
             cmdline_aliases => {E=>{}},
+            tags => ['category:display'],
+        },
+        hide_field_name => {
+            summary => 'Do not show field names, just show field values',
+            schema => 'true*',
+            cmdline_aliases => {F=>{}},
+            tags => ['category:display'],
         },
         color => {
             summary => 'Whether to use color',
             schema => ['str*', in=>[qw/auto always never/]],
             default => 'auto',
+            tags => ['category:color'],
         },
         color_theme => {
             schema => 'perl::colortheme::modname_with_optional_args*',
+            tags => ['category:color'],
         },
         detail => {
             schema => 'bool*',
             cmdline_aliases => {l=>{}},
+            tags => ['category:display'],
         },
     },
     'x.envs' => {
