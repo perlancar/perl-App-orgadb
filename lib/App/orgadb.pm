@@ -27,6 +27,24 @@ our %argspecs_common = (
         cmdline_aliases=>{f=>{}},
         tags => ['category:input'],
     },
+    shell_mode => {
+        schema => 'true*',
+        cmdline_aliases=>{s=>{}},
+    },
+    reload_files_on_change => {
+        schema => 'bool*',
+        default => 1,
+    },
+    color => {
+        summary => 'Whether to use color',
+        schema => ['str*', in=>[qw/auto always never/]],
+        default => 'auto',
+        tags => ['category:color'],
+    },
+    color_theme => {
+        schema => 'perl::colortheme::modname_with_optional_args*',
+        tags => ['category:color'],
+    },
 );
 
 our %argspecopt_category = (
@@ -56,6 +74,35 @@ our %argspecopt1_field = (
         pos => 1,
         slurpy => 1,
         tags => ['category:filter'],
+    },
+);
+
+our %argspecs_select = (
+    %argspecopt0_entry,
+    %argspecopt1_field,
+    %argspecopt_category,
+    hide_category => {
+        summary => 'Do not show category',
+        schema => 'true*',
+        cmdline_aliases => {C=>{}},
+        tags => ['category:display'],
+    },
+    hide_entry => {
+        summary => 'Do not show entry headline',
+        schema => 'true*',
+        cmdline_aliases => {E=>{}},
+        tags => ['category:display'],
+    },
+    hide_field_name => {
+        summary => 'Do not show field names, just show field values',
+        schema => 'true*',
+        cmdline_aliases => {F=>{}},
+        tags => ['category:display'],
+    },
+    detail => {
+        schema => 'bool*',
+        cmdline_aliases => {l=>{}},
+        tags => ['category:display'],
     },
 );
 
@@ -222,42 +269,7 @@ $SPEC{select_addressbook_entries} = {
     summary => 'Select Org addressbook entries/fields/subfields',
     args => {
         %argspecs_common,
-        %argspecopt0_entry,
-        %argspecopt1_field,
-        %argspecopt_category,
-        hide_category => {
-            summary => 'Do not show category',
-            schema => 'true*',
-            cmdline_aliases => {C=>{}},
-            tags => ['category:display'],
-        },
-        hide_entry => {
-            summary => 'Do not show entry headline',
-            schema => 'true*',
-            cmdline_aliases => {E=>{}},
-            tags => ['category:display'],
-        },
-        hide_field_name => {
-            summary => 'Do not show field names, just show field values',
-            schema => 'true*',
-            cmdline_aliases => {F=>{}},
-            tags => ['category:display'],
-        },
-        color => {
-            summary => 'Whether to use color',
-            schema => ['str*', in=>[qw/auto always never/]],
-            default => 'auto',
-            tags => ['category:color'],
-        },
-        color_theme => {
-            schema => 'perl::colortheme::modname_with_optional_args*',
-            tags => ['category:color'],
-        },
-        detail => {
-            schema => 'bool*',
-            cmdline_aliases => {l=>{}},
-            tags => ['category:display'],
-        },
+        %argspecs_select,
     },
     'x.envs' => {
         'ORGADB_COLOR_THEME' => {

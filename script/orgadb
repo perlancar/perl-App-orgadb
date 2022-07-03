@@ -165,7 +165,7 @@ To get Lisa's cell phone number (search against field):
 To get Lisa's cell phone number (only the number, without the entry headline or
 the field name):
 
- % orgadb lisa cell -E -F
+ % orgadb lisa cell -E -N
  555-1234-710
 
 To get all Lisa's phone numbers:
@@ -177,7 +177,7 @@ To get all Lisa's phone numbers:
 You can also search subfields. For example, to show Iwan's postcode field value
 under the address field:
 
- % orgadb iwan address postcode -EF
+ % orgadb iwan address postcode -EN
  40123
 
 =head2 Formatting
