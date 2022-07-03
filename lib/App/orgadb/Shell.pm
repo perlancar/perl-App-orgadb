@@ -1,10 +1,5 @@
 package App::orgadb::Shell;
 
-# AUTHORITY
-# DATE
-# DIST
-# VERSION
-
 use 5.010001;
 use strict 'subs', 'vars';
 use warnings;
@@ -13,6 +8,11 @@ use Log::ger;
 use parent qw(Term::Shell);
 
 use Time::HiRes qw(time);
+
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
 
 sub new {
     my ($class, %args) = @_;

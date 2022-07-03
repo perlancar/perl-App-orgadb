@@ -1,3 +1,14 @@
+0.003   2022-07-03  Released-By: PERLANCAR; Urgency: medium
+
+        - Tweak output, now output is Org document.
+
+        - Introduce shell mode (--shell, -s).
+
+        - Allow searching subfields.
+
+        - Add options: --hide-field-name (-N).
+
+
 0.002   2022-06-24  Released-By: PERLANCAR; Urgency: low
 
         - [ux] Add shortcut alias -f for --file.
