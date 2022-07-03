@@ -5,6 +5,8 @@ use strict;
 use warnings;
 use Log::ger;
 
+use App::orgadb::Common;
+
 # AUTHORITY
 # DATE
 # DIST
@@ -16,95 +18,6 @@ $SPEC{':package'} = {
     v => 1.1,
     summary => 'An opinionated Org addressbook tool',
 };
-
-our %argspecs_common = (
-    files => {
-        summary => 'Path to addressbook files',
-        'summary.alt.plurality.singular' => 'Path to addressbook file',
-        'x.name.is_plural' => 1,
-        'x.name.singular' => 'file',
-        schema => ['array*', of=>'filename*', min_len=>1],
-        cmdline_aliases=>{f=>{}},
-        tags => ['category:input'],
-    },
-    shell_mode => {
-        schema => 'true*',
-        cmdline_aliases=>{s=>{}},
-    },
-    reload_files_on_change => {
-        schema => 'bool*',
-        default => 1,
-    },
-    color => {
-        summary => 'Whether to use color',
-        schema => ['str*', in=>[qw/auto always never/]],
-        default => 'auto',
-        tags => ['category:color'],
-    },
-    color_theme => {
-        schema => 'perl::colortheme::modname_with_optional_args*',
-        tags => ['category:color'],
-    },
-);
-
-our %argspecopt_category = (
-    category => {
-        summary => 'Find entry by string or regex search against the category title',
-        schema => 'str_or_re*',
-        cmdline_aliases=>{c=>{}},
-        tags => ['category:filter'],
-    },
-);
-
-our %argspecopt0_entry = (
-    entry => {
-        summary => 'Find entry by string or regex search against its title',
-        schema => 'str_or_re*',
-        pos => 0,
-        tags => ['category:filter'],
-    },
-);
-
-our %argspecopt1_field = (
-    fields => {
-        'x.name.is_plural' => 1,
-        'x.name.singular' => 'field',
-        summary => 'Find (sub)fields by string or regex search',
-        schema => ['array*', of=>'str_or_re*'],
-        pos => 1,
-        slurpy => 1,
-        tags => ['category:filter'],
-    },
-);
-
-our %argspecs_select = (
-    %argspecopt0_entry,
-    %argspecopt1_field,
-    %argspecopt_category,
-    hide_category => {
-        summary => 'Do not show category',
-        schema => 'true*',
-        cmdline_aliases => {C=>{}},
-        tags => ['category:display'],
-    },
-    hide_entry => {
-        summary => 'Do not show entry headline',
-        schema => 'true*',
-        cmdline_aliases => {E=>{}},
-        tags => ['category:display'],
-    },
-    hide_field_name => {
-        summary => 'Do not show field names, just show field values',
-        schema => 'true*',
-        cmdline_aliases => {F=>{}},
-        tags => ['category:display'],
-    },
-    detail => {
-        schema => 'bool*',
-        cmdline_aliases => {l=>{}},
-        tags => ['category:display'],
-    },
-);
 
 sub _highlight {
     my ($clrtheme_obj, $re, $text) = @_;
@@ -118,8 +31,10 @@ sub _highlight {
 
 # this is like select_addressbook_entries(), but selects from object trees
 # instead of from an Org file.
-sub _select_addressbook_entries {
+sub _select_addressbook_entries_single {
     my %args = @_;
+
+    #print "$_ => $args{$_}\n" for sort keys %args;
 
     my $trees = $args{_trees};
     my $tree_filenames = $args{_tree_filenames};
@@ -233,7 +148,7 @@ sub _select_addressbook_entries {
 
             my $re_field;
             $re_field = join "|", @re_field if @re_field;
-            if ($args{detail} || ( !defined($args{fields} || !@{$args{fields}} ))) {
+            if ($args{detail}) {
                 my $str = $entry->children_as_string;
                 $str = _highlight(
                     $clrtheme_obj,
@@ -264,12 +179,24 @@ sub _select_addressbook_entries {
     $res;
 }
 
+sub _select_addressbook_entries_shell {
+    my %args = @_;
+
+    require App::orgadb::Shell;
+    my $shell = App::orgadb::Shell->new(
+        orgadb_args => \%args,
+    );
+
+    $shell->cmdloop;
+    [200];
+}
+
 $SPEC{select_addressbook_entries} = {
     v => 1.1,
     summary => 'Select Org addressbook entries/fields/subfields',
     args => {
-        %argspecs_common,
-        %argspecs_select,
+        %App::orgadb::Common::argspecs_common,
+        %App::orgadb::Common::argspecs_select,
     },
     'x.envs' => {
         'ORGADB_COLOR_THEME' => {
@@ -289,13 +216,16 @@ _
 sub select_addressbook_entries {
     my %args = @_;
 
-    my @trees;
-    my @tree_filenames;
-  PARSE_FILES: {
+    my $code_parse_files = sub {
+        my @filenames = @_;
+
+        my @trees;
+        my @tree_filenames;
+
         require Org::Parser;
         my $parser = Org::Parser->new;
 
-        for my $filename (@{ delete $args{files} }) {
+        for my $filename (@filenames) {
             my $doc;
             if ($filename eq '-') {
                 binmode STDIN, ":encoding(utf8)";
@@ -307,14 +237,25 @@ sub select_addressbook_entries {
             push @trees, $doc;
             push @tree_filenames, $filename;
         } # for filename
-    } # PARSE_FILES
 
-    _select_addressbook_entries(
-        %args,
-        _trees => \@trees,
-        _tree_filenames => \@tree_filenames,
-    );
+        return (\@trees, \@tree_filenames);
+    };
+
+    if ($args{shell}) {
+        _select_addressbook_entries_shell(
+            _code_parse_files => $code_parse_files,
+            %args,
+        );
+    } else {
+        my ($trees, $tree_filenames) = $code_parse_files->(@{ $args{files} });
+        _select_addressbook_entries_single(
+            %args,
+            _trees => $trees,
+            _tree_filenames => $tree_filenames,
+        );
+    }
 }
+
 1;
 #ABSTRACT:
 
