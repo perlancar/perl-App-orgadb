@@ -98,6 +98,32 @@ our %argspecs_select = (
         cmdline_aliases => {l=>{}},
         tags => ['category:display'],
     },
+    formatters => {
+        'x.name.is_plural' => 1,
+        'x.name.singular' => 'formatter',
+        summary => 'Add one or more formatters to display field value',
+        schema => ['array*', of=>'str*'],
+        tags => ['category:display'],
+        description => <<'_',
+
+Specify one or more formatters to apply to the field value before displaying.
+
+A formatter is name of `Data::Sah::Filter::perl::*` module, without the prefix.
+For example: `Str::uc` will convert the field value to uppercase. Another
+formatter, `Str::remove_comment` can remove comment.
+
+A formatter can have arguments, which is specified using this format:
+
+    [FORMATTER_NAME, {ARG1NAME => ARG1VAL, ...}]
+
+If formatter name begins with `[` character, it will be parsed as JSON. Example:
+
+ ['Str::remove_comment', {'style':'cpp'}]
+
+
+_
+    },
+
     num_entries => {
         summary => 'Specify maximum number of entries to return (0 means unlimited)',
         schema => 'uint*',

@@ -41,6 +41,22 @@ sub _select_addressbook_entries_single {
 
     my $res = [200, "OK", ""];
 
+    my $formatter;
+    if ($args{formatters} && @{ $args{formatters} }) {
+        my @filter_names;
+        for my $f (@{ $args{formatters} }) {
+            if ($f =~ /\A\[/) {
+                require JSON::PP;
+                $f = JSON::PP::decode_json($f);
+            }
+            push @filter_names, $f;
+        }
+        require Data::Sah::Filter;
+        $formatter = Data::Sah::Filter::gen_filter(
+            filter_names => \@filter_names,
+        );
+    }
+
     my @matching_entries;
     my ($re_category, $re_entry, $re_field);
   FIND_ENTRIES: {
@@ -178,6 +194,7 @@ sub _select_addressbook_entries_single {
 
                     my $field_value = $field->children_as_string;
                     $field_value =~ s/\A\s+//s if $args{hide_field_name};
+                    $field_value = $formatter->($field_value) if $formatter;
                     $res->[2] .= $field_value;
                 }
             }

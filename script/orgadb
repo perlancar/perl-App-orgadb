@@ -182,7 +182,10 @@ under the address field:
 
 =head2 Formatting
 
-NOT YET IMPLEMENTED
+You can apply one or more formatters to field values:
+
+ % orgadb lisa cell --formatter Str::remove_non_digit -EN
+ 5551234710
 
 =head2 Shell mode
 
