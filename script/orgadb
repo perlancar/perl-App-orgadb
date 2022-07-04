@@ -199,12 +199,61 @@ Org addressbook files repeatedly. For example:
  ...
  > exit
 
- %
+ % _
+
+When the addressbook files change on disk, the files will be re-read.
+
+=head2 Password book
+
+Aside from a regular addressbook, you can also use B<orgadb> with password books
+(a file you store passwords in). B<orgadb> can read GnuPG-encrypted files, where
+the decrypted content is read into memory and not stored in temporary files. You
+can then use shell mode (C<-s>) to repeatedly query the password book without
+re-reading and re-decrypting everytime. For example, suppose you have a password
+book like this:
+
+ # -*- Mode: org -*-
+ * persona > perlancar
+ ** google (perlancar)
+ - username :: perlancar
+ - pass :: secret1
+ - security question :: favorite dog in the whole wide world?
+ - security answer :: impossible to pick one
+ - log ::
+   + [2022-07-04 Mon] :: change password
+   + [2017-08-01] :: create
+ ** twitter (perlancar)
+ - username :: perlancar
+ - pass :: secret2
+ * persona > steven
+ ** google (steven123123)
+ - username :: steven123123
+ - phone :: 555-123-2345
+ - pass :: secret3
+
+and you store it in C<~/passwords.gpg>. Then to query passwords:
+
+ # What's my (perlancar)'s google password?
+ % orgadb -f ~/passwords.gpg /google.+perlancar/ pass -EN
+ secret1
+
+ # What's my (steven)'s phone used in the google account?
+ % orgadb -f ~/passwords.gpg /google.+steven/ '/phone|cell/' -EN
+ 555-123-2345
+
+Or, in shell mode:
+
+ % orgadb -f ~/passwords.gpg -s
+ > select /google.+perlancar/ pass -EN
+ secret1
+ > select /google.+steven/ '/phone|cell/' -EN
+ 555-123-2345
+ > exit
+
+ % _
 
 
 =head1 DESCRIPTION
-
-B<EARLY RELEASE, MANY OPTIONS ARE NOT YET ADDED OR IMPLEMETED.>
 
 B<App::orgadb> is a tool for your addressbook written in Org format. It
 currently contains:

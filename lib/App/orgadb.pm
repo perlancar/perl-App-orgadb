@@ -224,6 +224,8 @@ _
 sub select_addressbook_entries {
     my %args = @_;
 
+    return [400, "Please specify at least one file"] unless @{ $args{files} || [] };
+
     my $code_parse_files = sub {
         my @filenames = @_;
 
@@ -240,7 +242,16 @@ sub select_addressbook_entries {
                 $doc = $parser->parse(join "", <>);
             } else {
                 local $ENV{PERL_ORG_PARSER_CACHE} = $ENV{PERL_ORG_PARSER_CACHE} // 1;
-                $doc = $parser->parse_file($filename);
+                if ($filename =~ /\.gpg\z/) {
+                    require IPC::System::Options;
+                    my $content;
+                    IPC::System::Options::system(
+                        {log=>1, capture_stdout=>\$content, die=>1},
+                        "gpg", "-d", $filename);
+                    $doc = $parser->parse($content);
+                } else {
+                    $doc = $parser->parse_file($filename);
+                }
             }
             push @trees, $doc;
             push @tree_filenames, $filename;
