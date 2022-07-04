@@ -80,6 +80,10 @@ sub _select_addressbook_entries_single {
                 class_prefixes => ["Org::Element"],
             }, $expr, $tree);
             push @matching_entries, @nodes;
+            if ($args{num_entries} && @matching_entries > $args{num_entries}) {
+                splice @matching_entries, $args{num_entries};
+                last FIND_ENTRIES;
+            }
         }
     } # FIND_ENTRIES
     log_trace "Number of matching entries: %d", scalar(@matching_entries);
@@ -126,6 +130,10 @@ sub _select_addressbook_entries_single {
                 @matching_fields = Data::CSel::csel({
                     class_prefixes => ["Org::Element"],
                 }, $expr_field, $entry);
+
+                if ($args{num_fields} && @matching_fields > $args{num_fields}) {
+                    splice @matching_fields, $args{num_fields};
+                }
 
                 next ENTRY unless @matching_fields;
             }

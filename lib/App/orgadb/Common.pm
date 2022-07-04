@@ -98,6 +98,16 @@ our %argspecs_select = (
         cmdline_aliases => {l=>{}},
         tags => ['category:display'],
     },
+    num_entries => {
+        summary => 'Specify maximum number of entries to return (0 means unlimited)',
+        schema => 'uint*',
+        tags => ['category:result'],
+    },
+    num_fields => {
+        summary => 'Specify maximum number of fields (per entry) to return (0 means unlimited)',
+        schema => 'uint*',
+        tags => ['category:result'],
+    },
 );
 
 1;
