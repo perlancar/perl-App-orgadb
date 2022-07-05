@@ -20,15 +20,12 @@ our %argspecs_common = (
         cmdline_aliases=>{f=>{}},
         tags => ['category:input'],
     },
-    shell => {
-        schema => 'true*',
-        cmdline_aliases=>{s=>{}},
-        tags => ['category:mode'],
-    },
     reload_files_on_change => {
         schema => 'bool*',
         default => 1,
+        tags => ['category:input'],
     },
+
     color => {
         summary => 'Whether to use color',
         schema => ['str*', in=>[qw/auto always never/]],
@@ -38,6 +35,12 @@ our %argspecs_common = (
     color_theme => {
         schema => 'perl::colortheme::modname_with_optional_args*',
         tags => ['category:color'],
+    },
+
+    shell => {
+        schema => 'true*',
+        cmdline_aliases=>{s=>{}},
+        tags => ['category:mode'],
     },
 );
 
