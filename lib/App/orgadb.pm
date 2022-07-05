@@ -121,15 +121,17 @@ sub _select_addressbook_entries_single {
         };
 
         my ($expr_field, @re_field);
+        my $i = -1;
       ENTRY:
         for my $entry (@matching_entries) {
+            $i++;
 
             my @matching_fields;
             if (defined($args{fields}) && @{ $args{fields} }) {
                 unless (defined $expr_field) {
                     $expr_field = '';
                     for my $field_term (@{ $args{fields} }) {
-                        $expr_field .= ' ' if $expr_field;
+                        $expr_field .= ($expr_field ? ' > List > ' : 'Headline > List > ');
                         $expr_field .= 'ListItem[desc_term.text';
                         my $re_field;
                         if (ref $field_term eq 'Regexp') {
