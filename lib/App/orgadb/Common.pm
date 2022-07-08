@@ -58,19 +58,43 @@ our %argspecopt0_entry = (
         summary => 'Find entry by string or regex search against its title',
         schema => 'str_or_re*',
         pos => 0,
-        tags => ['category:filter'],
+        tags => ['category:entry-selection'],
+    },
+);
+
+our %argspecopt_entry_by_fields = (
+    entry_by_fields => {
+        summary => 'Find entry by the fields or subfields it has',
+        schema => ['array*', of=> 'str*'],
+        tags => ['category:entry-selection'],
+        description => <<'_',
+
+The format of each entry_by_field is one of:
+
+    str
+    /re/
+    str = str2
+    str = /re2/
+    /re/ = str2
+    /re/ = /re2/
+
+That is, it can search for a string (`str`) or regex (`re`) in the field name,
+and optionally also search for a string (`str2`) or regex (`re2`) in the field
+value.
+
+_
     },
 );
 
 our %argspecopt1_field = (
     fields => {
+        summary => 'Find (sub)fields by string or regex search',
         'x.name.is_plural' => 1,
         'x.name.singular' => 'field',
-        summary => 'Find (sub)fields by string or regex search',
         schema => ['array*', of=>'str_or_re*'],
         pos => 1,
         slurpy => 1,
-        tags => ['category:filter'],
+        tags => ['category:field-selection'],
     },
 );
 

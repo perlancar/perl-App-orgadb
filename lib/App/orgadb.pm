@@ -88,7 +88,35 @@ sub _select_addressbook_entries_single {
             $expr .= " =~ " . Data::Dmp::dmp($re_entry) . "]";
         }
 
-        log_trace "CSel expression: <$expr>";
+        if (defined($args{entry_by_fields}) && @{ $args{entry_by_fields} }) {
+            my $expr_field = '';
+            my @re_field;
+            for my $field_term (@{ $args{entry_by_fields} }) {
+                my ($field_name, $field_value);
+                if ($field_term =~ /(.+?)\s*=\s*(.+)/) {
+                    $field_name = $1;
+                    $field_value = $2;
+                } else {
+                    $field_name = $field_term;
+                }
+                for ($field_name, $field_value) {
+                    if (m!\A/.+/([ims]*)\z!) {
+                        my $re = eval "qr(
+                $expr .= ' ' if $expr_field;
+                $expr .= 'ListItem[desc_term.text';
+                my $re_field;
+                if (ref $field_term eq 'Regexp') {
+                    $re_field = $field_term;
+                } else {
+                    $re_field = quotemeta($field_term);
+                    $re_field = qr/$re_field/;
+                }
+                $expr_field .= " =~ " . Data::Dmp::dmp($re_field) . "]";
+                push @re_field, $re_field;
+            }
+        }
+
+        log_trace "CSel expression for selecting entries: <$expr>";
         #log_trace "Number of trees: %d", scalar(@trees);
 
         for my $tree (@$trees) {
@@ -143,11 +171,13 @@ sub _select_addressbook_entries_single {
                         $expr_field .= " =~ " . Data::Dmp::dmp($re_field) . "]";
                         push @re_field, $re_field;
                     }
+                    log_trace "CSel expression for selecting fields: <$expr_field>";
                 }
 
                 @matching_fields = Data::CSel::csel({
                     class_prefixes => ["Org::Element"],
                 }, $expr_field, $entry);
+                log_trace "Number of matching fields for entry #$i: %d", scalar(@matching_fields);
 
                 if ($args{num_fields} && @matching_fields > $args{num_fields}) {
                     splice @matching_fields, $args{num_fields};
