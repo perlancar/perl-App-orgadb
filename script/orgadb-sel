@@ -11,19 +11,11 @@ use warnings;
 
 use Perinci::CmdLine::Any;
 
-# with subcommands, -c and -C checking to use with common_optswere not fixed yet
-#my $cmdline = Perinci::CmdLine::Any->new(
-#    url => '/App/orgadb/',
-#    subcommands => {
-#        select => {url => '/App/orgadb/select_addressbook_entries'},
-#    },
-#    default_subcommand => 'select',
-#);
-
 my $cmdline = Perinci::CmdLine::Any->new(
     summary => 'Select entries and fields from Org addressbook',
-    url => '/App/orgadb/select_addressbook_entries',
+    url => '/App/orgadb/select',
     log => 1,
+    config_filenames => ['orgadb.conf', 'orgadb-sel.conf'],
 );
 
 $cmdline->run;
@@ -88,7 +80,7 @@ written using breadcrumb-style notation with ">" separator):
 
 To list all entries (categories will be shown as path prefix):
 
- % orgadb
+ % orgadb-sel
  ** family/iwan
  ** family/restu
  ** family/satya
@@ -108,13 +100,13 @@ To list all entries (categories will be shown as path prefix):
 
 To list entries that match the string 'sa':
 
- % orgadb sa
+ % orgadb-sel sa
  ** family/satya
  ** work > newsradio/lisa
 
 To hide the category prefix, use C<-C> (C<--hide-category>):
 
- % orgadb -C sa
+ % orgadb-sel -C sa
  ** satya
  ** lisa
 
@@ -122,10 +114,10 @@ To hide the category prefix, use C<-C> (C<--hide-category>):
 
 To search against the category, use the C<-c> option:
 
- % orgadb sa -c work; # search for 'sa' from work
+ % orgadb-sel sa -c work; # search for 'sa' from work
  ** work > newsradio/lisa
 
- % orgadb -c work; # list all entries from work
+ % orgadb-sel -c work; # list all entries from work
  ** work > newsradio/dave
  ** work > newsradio/lisa
  ** work > newsradio/joe
@@ -134,21 +126,21 @@ To search against the category, use the C<-c> option:
 
 To display Lisa's full entry:
 
- % orgadb lisa -l
+ % orgadb-sel lisa -l
  ** work > newsradio/lisa
  - cell :: 555-1234-710
  - home phone :: 555-1234-712
  - note ::
    + [2022-07-03] :: do not call after office hours
 
- % orgadb lisa -Cl  ;# do not show the category
+ % orgadb-sel lisa -Cl  ;# do not show the category
  ** lisa
  - cell :: 555-1234-710
  - home phone :: 555-1234-712
  - note ::
    + [2022-07-03] :: do not call after office hours
 
- % orgadb lisa -El  ;# do not show the entry line
+ % orgadb-sel lisa -El  ;# do not show the entry line
  - cell :: 555-1234-710
  - home phone :: 555-1234-712
  - note ::
@@ -158,33 +150,33 @@ To display Lisa's full entry:
 
 To get Lisa's cell phone number (search against field):
 
- % orgadb lisa cell
+ % orgadb-sel lisa cell
  ** work > newsradio/lisa
  - cell :: 555-1234-710
 
 To get Lisa's cell phone number (only the number, without the entry headline or
 the field name):
 
- % orgadb lisa cell -E -N
+ % orgadb-sel lisa cell -E -N
  555-1234-710
 
 To get all Lisa's phone numbers:
 
- % orgadb lisa -E '/phone|cell/'
+ % orgadb-sel lisa -E '/phone|cell/'
  - cell :: 555-1234-710
  - home phone :: 555-1234-712
 
 You can also search subfields. For example, to show Iwan's postcode field value
 under the address field:
 
- % orgadb iwan address postcode -EN
+ % orgadb-sel iwan address postcode -EN
  40123
 
 =head2 Formatting
 
 You can apply one or more formatters to field values:
 
- % orgadb lisa cell --formatter Str::remove_non_digit -EN
+ % orgadb-sel lisa cell --formatter Str::remove_non_digit -EN
  5551234710
 
 =head2 Shell mode
@@ -193,7 +185,7 @@ Instead of selecting one time and exiting, you can instruct B<orgadb> to enter
 shell mode, where you can issue multiple select commands without re-reading the
 Org addressbook files repeatedly. For example:
 
- % orgadb -s
+ % orgadb-sel -s
  > select lisa
  ...
  > select lisa -l
@@ -237,16 +229,16 @@ book like this:
 and you store it in C<~/passwords.gpg>. Then to query passwords:
 
  # What's my (perlancar)'s google password?
- % orgadb -f ~/passwords.gpg /google.+perlancar/ pass -EN
+ % orgadb-sel -f ~/passwords.gpg /google.+perlancar/ pass -EN
  secret1
 
  # What's my (steven)'s phone used in the google account?
- % orgadb -f ~/passwords.gpg /google.+steven/ '/phone|cell/' -EN
+ % orgadb-sel -f ~/passwords.gpg /google.+steven/ '/phone|cell/' -EN
  555-123-2345
 
 Or, in shell mode:
 
- % orgadb -f ~/passwords.gpg -s
+ % orgadb-sel -f ~/passwords.gpg -s
  > select /google.+perlancar/ pass -EN
  secret1
  > select /google.+steven/ '/phone|cell/' -EN
@@ -258,14 +250,14 @@ Or, in shell mode:
 
 =head1 DESCRIPTION
 
-B<App::orgadb> is a tool for your addressbook written in Org format. It
+B<App::orgadb> is a set of CLIs for addressbook written in Org format. It
 currently contains:
 
 =over
 
-=item * orgadb
+=item * orgadb-sel
 
-CLI to find/show addressbook entries/fields.
+CLI to list/select addressbook entries and fields.
 
 =back
 
@@ -276,16 +268,16 @@ level is where you put all your entries. Fields are written in description list.
 
 =head1 append:FILES
 
-=head2 ~/.orgadb_history
+=head2 ~/.orgadb_sel_history
 
-Store shell's command history.
+Store shell's command history for B<orgadb-sel>.
 
 
 =head1 FAQ
 
-=head2 Why doesn't 'orgadb' list all my entries? It returns nothing.
+=head2 Why doesn't 'orgadb-sel' list all my entries? It returns nothing.
 
- % orgadb
+ % orgadb-sel
  % _
 
 Probably because the addressbook is not written following the expected
@@ -316,14 +308,14 @@ This is the correct structure:
 
 When queried:
 
- % orgadb
+ % orgadb-sel
  friends > high school/jimmy
  friends > high school/john
  friends > high school/jack
 
 =head2 Why can't I search against entry fields? It returns nothing. (I can list entries.)
 
- % orgadb jimmy cell
+ % orgadb-sel jimmy cell
  % _
 
 Probably because the addressbook is not written following the expected
@@ -344,5 +336,7 @@ by two colons, followed by another space) as the separator:
 
 L<orgsel> (from L<App::orgsel>) is a more generic selection tool for Org
 document.
+
+Other CLI's in this distribution.
 
 Information about the Org format: L<https://orgmode.org>
