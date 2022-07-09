@@ -16,7 +16,7 @@ our %SPEC;
 
 $SPEC{':package'} = {
     v => 1.1,
-    summary => 'An opinionated Org addressbook tool',
+    summary => 'An opinionated Org addressbook toolset',
 };
 
 sub _highlight {
@@ -31,7 +31,7 @@ sub _highlight {
 
 # this is like select_addressbook_entries(), but selects from object trees
 # instead of from an Org file.
-sub _select_addressbook_entries_single {
+sub _select_single {
     my %args = @_;
 
     #print "$_ => $args{$_}\n" for sort keys %args;
@@ -236,12 +236,12 @@ sub _select_addressbook_entries_single {
     $res;
 }
 
-sub _select_addressbook_entries_shell {
+sub _select_shell {
     my %args = @_;
 
-    require App::orgadb::Shell;
-    my $shell = App::orgadb::Shell->new(
-        orgadb_args => \%args,
+    require App::orgadb::Select::Shell;
+    my $shell = App::orgadb::Select::Shell->new(
+        main_args => \%args,
     );
 
     $shell->cmdloop;
@@ -270,7 +270,7 @@ _
         },
     },
 };
-sub select_addressbook_entries {
+sub select {
     my %args = @_;
 
     return [400, "Please specify at least one file"] unless @{ $args{files} || [] };
@@ -310,13 +310,13 @@ sub select_addressbook_entries {
     };
 
     if ($args{shell}) {
-        _select_addressbook_entries_shell(
+        _select_shell(
             _code_parse_files => $code_parse_files,
             %args,
         );
     } else {
         my ($trees, $tree_filenames) = $code_parse_files->(@{ $args{files} });
-        _select_addressbook_entries_single(
+        _select_single(
             %args,
             _trees => $trees,
             _tree_filenames => $tree_filenames,

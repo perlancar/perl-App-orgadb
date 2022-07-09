@@ -1,4 +1,4 @@
-package App::orgadb::Shell;
+package App::orgadb::Select::Shell;
 
 use 5.010001;
 use strict 'subs', 'vars';
@@ -20,7 +20,7 @@ sub new {
     $class->_install_cmds;
 
     my $self = $class->SUPER::new();
-    $self->{program_name} = $args{program_name} // 'orgadb';
+    $self->{program_name} = $args{program_name} // 'orgadb-sel';
 
     $self->load_history;
 
@@ -30,7 +30,7 @@ sub new {
 
     $self->{_in_completion} = 0;
 
-    $self->{_state}{orgadb_args} = $args{orgadb_args};
+    $self->{_state}{main_args} = $args{main_args};
 
     $self;
 }
@@ -330,7 +330,7 @@ sub _run_cmd {
     }
 
     my $fmt = $opts->{fmt} //
-        $res->[3]{"x.app.orgadb.default_format"} //
+        $res->[3]{"x.app.orgadb_sel.default_format"} //
             'text';
 
     print Perinci::Result::Format::Lite::format($res, $fmt);
@@ -347,7 +347,7 @@ sub comp_ {
 
     # add commands
     my @res = ("help", "exit");
-    push @res, grep {/\A\w+\z/} keys %App::orgadb::Shell::Commands::SPEC;
+    push @res, grep {/\A\w+\z/} keys %App::orgadb::Select::Shell::Commands::SPEC;
 
     my $comp = Complete::Bash::format_completion({
         path_sep => '/',
@@ -386,7 +386,7 @@ sub catch_comp {
 
     local $self->{_in_completion} = 1;
 
-    my $meta = $App::orgadb::Shell::Commands::SPEC{$cmd};
+    my $meta = $App::orgadb::Selec::Shell::Commands::SPEC{$cmd};
     return () unless $meta;
 
     my ($words, $cword) = @{ Complete::Bash::parse_cmdline(
@@ -419,12 +419,12 @@ sub _install_cmds {
 
     return if $installed;
 
-    require App::orgadb::Shell::Commands;
+    require App::orgadb::Select::Shell::Commands;
     require Complete::Util;
-    for my $cmd (sort keys %App::orgadb::Shell::Commands::SPEC) {
+    for my $cmd (sort keys %App::orgadb::Select::Shell::Commands::SPEC) {
         next unless $cmd =~ /\A\w+\z/; # only functions
         log_trace("Installing command $cmd ...");
-        my $meta = $App::orgadb::Shell::Commands::SPEC{$cmd};
+        my $meta = $App::orgadb::Select::Shell::Commands::SPEC{$cmd};
         my $code = \&{"App::orgadb::Shell::Commands::$cmd"};
         *{"smry_$cmd"} = sub { $meta->{summary} };
         *{"run_$cmd"} = sub {
@@ -479,13 +479,14 @@ sub _install_cmds {
 }
 
 1;
-# ABSTRACT: Shell object for orgadb
+# ABSTRACT: Shell object for orgadb-sel
 
 =for Pod::Coverage ^(.+)$
 
 =head1 SYNOPSIS
 
-See L<orgadb> for more details, particularly the shell mode (C<--shell>, C<-s>).
+See L<orgadb-sel> for more details, particularly the shell mode (C<--shell>,
+C<-s>).
 
 
 =head1 SEE ALSO

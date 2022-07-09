@@ -1,4 +1,4 @@
-package App::orgadb::Shell::Commands;
+package App::orgadb::Select::Shell::Commands;
 
 use 5.010001;
 use strict;
@@ -16,7 +16,7 @@ our %SPEC;
 
 $SPEC{':package'} = {
     v => 1.1,
-    summary => 'orgadb shell commands',
+    summary => 'orgadb-sel shell commands',
 };
 
 $SPEC{history} = {
@@ -77,7 +77,7 @@ sub select {
     my $code_parse_files = $args{_code_parse_files};
 
     # XXX currently when one file changes mtime, all files are reloaded
-    my $files = $shell->state('orgadb_args')->{files};
+    my $files = $shell->state('main_args')->{files};
     my $should_reload;
     {
         my $file_mtimes = $shell->state('file_mtimes');
@@ -98,14 +98,14 @@ sub select {
 
     if ($should_reload) {
         my ($trees, $tree_filenames) =
-            $shell->state('orgadb_args')->{_code_parse_files}->(@$files);
+            $shell->state('main_args')->{_code_parse_files}->(@$files);
 
         $shell->state(trees => $trees);
         $shell->state(tree_filenames => $tree_filenames);
     }
 
-    App::orgadb::_select_addressbook_entries_single(
-        %{ $shell->{_state}{orgadb_args} },
+    App::orgadb::_select_single(
+        %{ $shell->{_state}{main_args} },
         _trees => $shell->state('trees'),
         _tree_filenames => $shell->state('tree_filenames'),
         %args,
