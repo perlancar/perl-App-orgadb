@@ -15,7 +15,7 @@ my $cmdline = Perinci::CmdLine::Any->new(
     summary => 'Select entries and fields from Org addressbook',
     url => '/App/orgadb/select',
     log => 1,
-    config_filenames => ['orgadb.conf', 'orgadb-sel.conf'],
+    config_filename => ['orgadb.conf', 'orgadb-sel.conf'],
 );
 
 $cmdline->run;

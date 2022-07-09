@@ -29,8 +29,8 @@ sub _highlight {
     $text;
 }
 
-# this is like select_addressbook_entries(), but selects from object trees
-# instead of from an Org file.
+# this is like select(), but selects from object trees instead of from an Org
+# file.
 sub _select_single {
     my %args = @_;
 
@@ -88,32 +88,24 @@ sub _select_single {
             $expr .= " =~ " . Data::Dmp::dmp($re_entry) . "]";
         }
 
-        if (defined($args{entry_by_fields}) && @{ $args{entry_by_fields} }) {
+        if (defined($args{filter_entries_by_fields}) && @{ $args{filter_entries_by_fields} }) {
+            require Regexp::From::String;
             my $expr_field = '';
-            my @re_field;
-            for my $field_term (@{ $args{entry_by_fields} }) {
+            for my $field_term (@{ $args{filter_entries_by_fields} }) {
                 my ($field_name, $field_value);
                 if ($field_term =~ /(.+?)\s*=\s*(.+)/) {
-                    $field_name = $1;
-                    $field_value = $2;
+                    $field_name = Regexp::From::String::str_to_re($1);
+                    $field_value = Regexp::From::String::str_to_re($2);
                 } else {
-                    $field_name = $field_term;
+                    $field_name = Regexp::From::String::str_to_re($field_term);
                 }
-                for ($field_name, $field_value) {
-                    if (m!\A/.+/([ims]*)\z!) {
-                        my $re = eval "qr(
-                $expr .= ' ' if $expr_field;
-                $expr .= 'ListItem[desc_term.text';
-                my $re_field;
-                if (ref $field_term eq 'Regexp') {
-                    $re_field = $field_term;
-                } else {
-                    $re_field = quotemeta($field_term);
-                    $re_field = qr/$re_field/;
+                $expr_field .= ($expr_field ? ' > List > ' : 'Headline[level=2] > List > ');
+                $expr_field .= 'ListItem[desc_term.text =~ '.Data::Dmp::dmp($field_name).']';
+                if ($field_value) {
+                    $expr_field .= '[children_as_string =~ '.Data::Dmp::dmp($field_value).']';
                 }
-                $expr_field .= " =~ " . Data::Dmp::dmp($re_field) . "]";
-                push @re_field, $re_field;
             }
+            $expr .= ":has($expr_field)";
         }
 
         log_trace "CSel expression for selecting entries: <$expr>";
@@ -133,6 +125,10 @@ sub _select_single {
     log_trace "Number of matching entries: %d", scalar(@matching_entries);
 
   DISPLAY_ENTRIES: {
+        if ($args{count}) {
+            return [200, "OK", scalar(@matching_entries)];
+        }
+
         my ($clrtheme, $clrtheme_obj);
       LOAD_COLOR_THEME: {
             my $color = $args{color} // 'auto';
@@ -159,7 +155,7 @@ sub _select_single {
                 unless (defined $expr_field) {
                     $expr_field = '';
                     for my $field_term (@{ $args{fields} }) {
-                        $expr_field .= ($expr_field ? ' > List > ' : 'Headline > List > ');
+                        $expr_field .= ($expr_field ? ' > List > ' : 'Headline[level=2] > List > ');
                         $expr_field .= 'ListItem[desc_term.text';
                         my $re_field;
                         if (ref $field_term eq 'Regexp') {
@@ -248,7 +244,7 @@ sub _select_shell {
     [200];
 }
 
-$SPEC{select_addressbook_entries} = {
+$SPEC{select} = {
     v => 1.1,
     summary => 'Select Org addressbook entries/fields/subfields',
     args => {

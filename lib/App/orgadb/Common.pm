@@ -62,8 +62,10 @@ our %argspecopt0_entry = (
     },
 );
 
-our %argspecopt_entry_by_fields = (
-    entry_by_fields => {
+our %argspecopt_filter_entry_by_fields = (
+    filter_entries_by_fields => {
+        'x.name.is_plural' => 1,
+        'x.name.singular' => 'filter_entries_by_field',
         summary => 'Find entry by the fields or subfields it has',
         schema => ['array*', of=> 'str*'],
         tags => ['category:entry-selection'],
@@ -125,6 +127,10 @@ our %argspecs_select = (
         cmdline_aliases => {l=>{}},
         tags => ['category:display'],
     },
+    count => {
+        summary => 'Return just the number of matching entries instead of showing them',
+        schema => 'true*',
+    },
     formatters => {
         'x.name.is_plural' => 1,
         'x.name.singular' => 'formatter',
@@ -161,6 +167,8 @@ _
         schema => 'uint*',
         tags => ['category:result'],
     },
+
+    %argspecopt_filter_entry_by_fields,
 );
 
 1;

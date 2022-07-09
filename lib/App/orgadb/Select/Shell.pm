@@ -425,7 +425,7 @@ sub _install_cmds {
         next unless $cmd =~ /\A\w+\z/; # only functions
         log_trace("Installing command $cmd ...");
         my $meta = $App::orgadb::Select::Shell::Commands::SPEC{$cmd};
-        my $code = \&{"App::orgadb::Shell::Commands::$cmd"};
+        my $code = \&{"App::orgadb::Select::Shell::Commands::$cmd"};
         *{"smry_$cmd"} = sub { $meta->{summary} };
         *{"run_$cmd"} = sub {
             my $self = shift;
