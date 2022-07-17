@@ -99,7 +99,8 @@ sub _select_single {
                 } else {
                     $field_name = Regexp::From::String::str_to_re($field_term);
                 }
-                $expr_field .= ($expr_field ? ' > List > ' : 'Headline[level=2] > List > ');
+                #$expr_field .= ($expr_field ? ' > List > ' : 'Headline[level=2] > List > ');
+                $expr_field .= ($expr_field ? ' > List > ' : 'List > ');
                 $expr_field .= 'ListItem[desc_term.text =~ '.Data::Dmp::dmp($field_name).']';
                 if ($field_value) {
                     $expr_field .= '[children_as_string =~ '.Data::Dmp::dmp($field_value).']';
@@ -109,12 +110,12 @@ sub _select_single {
         }
 
         log_trace "CSel expression for selecting entries: <$expr>";
-        #log_trace "Number of trees: %d", scalar(@trees);
 
         for my $tree (@$trees) {
             my @nodes = Data::CSel::csel({
                 class_prefixes => ["Org::Element"],
             }, $expr, $tree);
+            #use Tree::Dump; for (@nodes) { td $_; print "\n\n\n" }
             push @matching_entries, @nodes;
             if ($args{num_entries} && @matching_entries > $args{num_entries}) {
                 splice @matching_entries, $args{num_entries};
@@ -124,6 +125,7 @@ sub _select_single {
     } # FIND_ENTRIES
     log_trace "Number of matching entries: %d", scalar(@matching_entries);
 
+    #use Tree::Dump; for (@matching_entries) { td $_; print "\n" }
   DISPLAY_ENTRIES: {
         if ($args{count}) {
             return [200, "OK", scalar(@matching_entries)];
