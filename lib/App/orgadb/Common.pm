@@ -26,7 +26,7 @@ sub _complete_category {
     my $word = $args{word} // '';
 
     # only run under pericmd
-    my $cmdline = $args{cmdline} or return undef;
+    my $cmdline = $args{cmdline} or return;
     my $r = $args{r};
 
     # force read config file, because by default it is turned off when in
@@ -65,7 +65,7 @@ sub _complete_entry {
     my $word = $args{word} // '';
 
     # only run under pericmd
-    my $cmdline = $args{cmdline} or return undef;
+    my $cmdline = $args{cmdline} or return;
     my $r = $args{r};
 
     # force read config file, because by default it is turned off when in
@@ -121,7 +121,7 @@ sub _complete_field {
     my $word = $args{word} // '';
 
     # only run under pericmd
-    my $cmdline = $args{cmdline} or return undef;
+    my $cmdline = $args{cmdline} or return;
     my $r = $args{r};
 
     # force read config file, because by default it is turned off when in
