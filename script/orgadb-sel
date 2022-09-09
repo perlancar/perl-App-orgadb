@@ -273,6 +273,35 @@ level is where you put all your entries. Fields are written in description list.
 Store shell's command history for B<orgadb-sel>.
 
 
+=head1 TIPS AND TRICKS
+
+=head2 Aliasing orgadb-sel to a shorter command name
+
+If you are like me and you select from addressbook a lot, you might want to
+alias C<orgadb-sel> to a shorter name, e.g. C<sel>. To do this, create this
+script somewhere in your PATH:
+
+ #!/usr/bin/env perl
+ # FRAGMENT id=shcompgen-hint command=orgadb-sel
+ exec "orgadb-sel", @ARGV;
+
+The C<# FRAGMENT> line is optional (it's useful if you use L<shcompgen>). In
+your bash startup file, put something like:
+
+ complete -C orgadb-sel sel
+
+or if you L<shcompgen>, run C<shcompgen gen sel> instead.
+
+=head2 Tab completion
+
+The script provides tab completion for category, entry, and field, so you can
+type:
+
+ % orgadb-sel --category <tab>        ;# see what categories are available
+ % orgadb-sel lis<tab>                ;# complete with entries matching 'lis'
+ % orgadb-sel lisa <tab>              ;# complete with available fields or /lisa/ entries
+
+
 =head1 FAQ
 
 =head2 Why doesn't 'orgadb-sel' list all my entries? It returns nothing.
