@@ -320,6 +320,14 @@ our %argspecs_select = (
         'x.name.singular' => 'formatter',
         summary => 'Add one or more formatters to display field value',
         schema => ['array*', of=>'str*'],
+        element_completion => sub {
+            require Complete::Module;
+            my %args = @_;
+            Complete::Module::complete_module(
+                word => $args{word},
+                ns_prefix => 'Data::Sah::Filter::perl',
+            );
+        },
         tags => ['category:display'],
         description => <<'_',
 
