@@ -96,7 +96,7 @@ To list all entries (categories will be shown as path prefix):
  ** work > newsradio/beth
  ** work > newsradio > ex/matthew
 
-=head2 Searching entries
+=head2 Searching entries by name
 
 To list entries that match the string 'sa':
 
@@ -110,14 +110,14 @@ To hide the category prefix, use C<-C> (C<--hide-category>):
  ** satya
  ** lisa
 
-=head2 Searching categories
+=head2 Filtering entries by categories
 
-To search against the category, use the C<-c> option:
+To only include entries that have certain category name, use the C<-c> option:
 
- % orgadb-sel sa -c work; # search for 'sa' from work
+ % orgadb-sel sa -c work; # search for entries 'sa' from category 'work'
  ** work > newsradio/lisa
 
- % orgadb-sel -c work; # list all entries from work
+ % orgadb-sel -c work; # list all entries from category 'work'
  ** work > newsradio/dave
  ** work > newsradio/lisa
  ** work > newsradio/joe
@@ -145,6 +145,18 @@ To display Lisa's full entry:
  - home phone :: 555-1234-712
  - note ::
    + [2022-07-03] :: do not call after office hours
+
+=head2 Filtering entries by the fields they have
+
+Aside from filterin by category, we can filter entries by the fields they have.
+For example, to only list entries that have 'bank information' field:
+
+ % orgadb-sel --filter-entries-by-fields '/bank information/'
+
+Another example, to only include entries that have 'deceased' field set to
+'true' or 'y/'yes':
+
+ % orgadb-sel --filter-entries-by-fields '/deceased/ = /(?:true|yes|y)/i'
 
 =head2 Searching fields
 
