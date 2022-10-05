@@ -319,6 +319,7 @@ our %argspecs_select = (
         'x.name.is_plural' => 1,
         'x.name.singular' => 'formatter',
         summary => 'Add one or more formatters to display field value',
+        #schema => ['array*', of=>'perl::perl_sah_filter::modname_with_optional_args*'], ## doesn't work yet with Perinci::Sub::GetArgs::Argv
         schema => ['array*', of=>'str*'],
         element_completion => sub {
             require Complete::Module;
