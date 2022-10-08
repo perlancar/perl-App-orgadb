@@ -329,6 +329,7 @@ our %argspecs_select = (
                 ns_prefix => 'Data::Sah::Filter::perl',
             );
         },
+        cmdline_aliases => {F=>{}},
         tags => ['category:display'],
         description => <<'_',
 
