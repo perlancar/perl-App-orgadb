@@ -41,9 +41,8 @@ sub _select_single {
 
     my $res = [200, "OK", ""];
 
-    my $formatter;
+    my ($formatter, @filter_names);
     if (!$args{no_formatters} && $args{formatters} && @{ $args{formatters} }) {
-        my @filter_names;
         for my $f (@{ $args{formatters} }) {
             if ($f =~ /\A\[/) {
                 require JSON::PP;
@@ -64,6 +63,7 @@ sub _select_single {
         require Data::Sah::Filter;
         $formatter = Data::Sah::Filter::gen_filter(
             filter_names => \@filter_names,
+            return_type => 'str_errmsg+val',
         );
     }
 
@@ -234,7 +234,15 @@ sub _select_single {
 
                     my $field_value0 = $field->children_as_string;
                     my ($prefix, $field_value, $suffix) = $field_value0 =~ /\A(\s+)(.*?)(\s*)\z/s;
-                    $field_value = $formatter->($field_value) if $formatter;
+                    if ($formatter) {
+                        my ($ferr, $fres) = @{ $formatter->($field_value) };
+                        if ($ferr) {
+                            log_warn "Formatting error: field value=%s, formatters=%s, errmsg=%s", $field_value, \@filter_names, $ferr;
+                            $field_value = "$field_value # CAN'T FORMAT: $ferr";
+                        } else {
+                            $field_value = $fres;
+                        }
+                    }
                     $res->[2] .= ($args{hide_field_name} ? "" : $prefix) . $field_value . $suffix;
                 }
             }
