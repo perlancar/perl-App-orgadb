@@ -41,8 +41,13 @@ sub _select_single {
 
     my $res = [200, "OK", ""];
 
+    my @parsed_default_formatter_rules;
+
     my ($formatter, @filter_names);
-    if (!$args{no_formatters} && $args{formatters} && @{ $args{formatters} }) {
+  SET_FORMATTERS:
+    {
+        last if $args{no_formatters};
+        last unless $args{formatters} && @{ $args{formatters} };
         for my $f (@{ $args{formatters} }) {
             if ($f =~ /\A\[/) {
                 require JSON::PP;
@@ -221,21 +226,88 @@ sub _select_single {
                 $res->[2] .= $str;
             } elsif (@matching_fields) {
                 for my $field (@matching_fields) {
-
+                    my $field_name0 = $field->desc_term->text;
                     unless ($args{hide_field_name}) {
                         my $field_name = '';
                         $field_name = _highlight(
                             $clrtheme_obj,
                             $re_field,
-                            $field->bullet . ' ' . $field->desc_term->text,
+                            $field->bullet . ' ' . $field_name0,
                         ) . " ::";
                         $res->[2] .= $field_name;
                     }
 
+                    my ($default_formatter);
+                  SET_DEFAULT_FORMATTERS:
+                    {
+                        last if $args{no_formatters};
+                        last if $formatter;
+                        last unless $args{default_formatter_rules} && @{ $args{default_formatter_rules} };
+                        unless (@parsed_default_formatter_rules) {
+                            for my $r0 (@{ $args{default_formatter_rules} }) {
+                                my $r;
+                                if (!ref($r0) && $r0 =~ /\A\{/) {
+                                    require JSON::PP;
+                                    $r = JSON::PP::decode_json($r0);
+                                } else {
+                                    $r = {%$r0};
+                                }
+
+                                if ($r->{formatters} && @{ $r->{formatters} }) {
+                                    my @filter_names2;
+                                    for my $f (@{ $r->{formatters} }) {
+                                        if ($f =~ /\A\[/) {
+                                            require JSON::PP;
+                                            $f = JSON::PP::decode_json($f);
+                                        } else {
+                                            if ($f =~ /(.+)=(.*)/) {
+                                                my ($modname, $args) = ($1, $2);
+                                                # normalize / to :: in the module name part
+                                                $modname =~ s!/!::!g;
+                                                $f = [$modname, { split /,/, $args }];
+                                            } else {
+                                                # normalize / to ::
+                                                $f =~ s!/!::!g;
+                                            }
+                                        }
+                                        push @filter_names2, $f;
+                                    }
+                                    require Data::Sah::Filter;
+                                    $r->{formatter} = Data::Sah::Filter::gen_filter(
+                                        filter_names => \@filter_names2,
+                                        return_type => 'str_errmsg+val',
+                                    );
+                                }
+                                push @parsed_default_formatter_rules, $r;
+                            }
+                            #log_error "parsed_default_formatter_rules=%s", \@parsed_default_formatter_rules;
+                        } # set @parsed_default_formatter_rules
+
+                        # do the filtering
+                        my $i = -1;
+                      RULE:
+                        for my $r (@parsed_default_formatter_rules) {
+                            $i++;
+                            my $matches = 1;
+                            if (defined $r->{field_name_matches}) {
+                                require Regexp::From::String;
+                                $r->{field_name_matches} = Regexp::From::String::str_to_re({case_insensitive=>1}, $r->{field_name_matches});
+                                $field_name0 =~ $r->{field_name_matches} or do {
+                                    $matches = 0;
+                                    log_trace "Skipping default_formatter_rules[%d]: field_name_matches %s doesn't match %s", $i, $r->{field_name_matches}, $field_name0;
+                                    next RULE;
+                                };
+                            } # XXX precompile field_name_matches
+                            log_trace "Using formatters from default_formatter_rules[%d] (%s) for field name %s", $i, $r->{formatters}, $field_name0;
+                            $default_formatter = $r->{formatter};
+                            last RULE;
+                        }
+                    } # SET_DEFAULT_FORMATTERS
+
                     my $field_value0 = $field->children_as_string;
                     my ($prefix, $field_value, $suffix) = $field_value0 =~ /\A(\s+)(.*?)(\s*)\z/s;
-                    if ($formatter) {
-                        my ($ferr, $fres) = @{ $formatter->($field_value) };
+                    if ($formatter || $default_formatter) {
+                        my ($ferr, $fres) = @{ ($formatter || $default_formatter)->($field_value) };
                         if ($ferr) {
                             log_warn "Formatting error: field value=%s, formatters=%s, errmsg=%s", $field_value, \@filter_names, $ferr;
                             $field_value = "$field_value # CAN'T FORMAT: $ferr";

@@ -319,6 +319,20 @@ our %argspecs_select = (
         schema => 'true*',
         cmdline_aliases => {raw_field_values=>{}, F=>{}},
     },
+    default_formatter_rules => {
+        'x.name.is_plural' => 1,
+        'x.name.singular' => 'default_formatter_rule',
+        schema => ['array*', of=>'any*'],
+        description => <<'_',
+
+Specify conditional default formatters. This is for convenience and best
+specified in the configuration as opposed to on the command-line option.
+An example:
+
+    default_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i","formatters":[ ["Phone::format_phone_idn"] ]}
+
+_
+    },
     formatters => {
         'x.name.is_plural' => 1,
         'x.name.singular' => 'formatter',
@@ -351,7 +365,8 @@ If formatter name begins with `[` character, it will be parsed as JSON. Example:
 
  ['Str::remove_comment', {'style':'cpp'}]
 
-Overridden by the `--no-formatters` (`--raw-field-values`, `-F`) option.
+Overrides `--default_formatter_rule` but overridden by the `--no-formatters`
+(`--raw-field-values`, `-F`) option.
 
 _
     },

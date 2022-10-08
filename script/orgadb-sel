@@ -313,6 +313,27 @@ type:
  % orgadb-sel lis<tab>                ;# complete with entries matching 'lis'
  % orgadb-sel lisa <tab>              ;# complete with available fields or /lisa/ entries
 
+=head2 Using field formatters
+
+Suppose you want to format phone number using international notation:
+
+ % orgadb-sel lisa phone -f Phone::format
+
+=head2 Using default field formatter rules
+
+Instead of specifying formatters everytime, you can setup rules for default
+formatters in the configuration file:
+
+ default_formatter_rules={"field_name_matches":"/te?lp|wa|phone|whatsapp|hp/i", "formatters":["Phone::format_idn_nospace"]}
+ default_formatter_rules={"field_name_matches":"/pass(word)?/i", "formatters":["Str::remove_comment"], "note":"I often put comments after my password, e.g. 'foobar # last changed 2022-10-08'"}
+
+and after this, when you select they will automatically be applied when
+selecting matching fields:
+
+ % orgadb-sel lisa phone
+
+To disable formatters, use C<--no-formatters> (C<-F>).
+
 
 =head1 FAQ
 
