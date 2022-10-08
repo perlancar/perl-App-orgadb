@@ -253,6 +253,12 @@ sub _select_single {
                                     $r = {%$r0};
                                 }
 
+                                # precompile regexes
+                                require Regexp::From::String;
+                                if (defined $r->{field_name_matches}) {
+                                    $r->{field_name_matches} = Regexp::From::String::str_to_re({case_insensitive=>1}, $r->{field_name_matches});
+                                }
+
                                 if ($r->{formatters} && @{ $r->{formatters} }) {
                                     my @filter_names2;
                                     for my $f (@{ $r->{formatters} }) {
@@ -290,14 +296,12 @@ sub _select_single {
                             $i++;
                             my $matches = 1;
                             if (defined $r->{field_name_matches}) {
-                                require Regexp::From::String;
-                                $r->{field_name_matches} = Regexp::From::String::str_to_re({case_insensitive=>1}, $r->{field_name_matches});
                                 $field_name0 =~ $r->{field_name_matches} or do {
                                     $matches = 0;
                                     log_trace "Skipping default_formatter_rules[%d]: field_name_matches %s doesn't match %s", $i, $r->{field_name_matches}, $field_name0;
                                     next RULE;
                                 };
-                            } # XXX precompile field_name_matches
+                            }
                             log_trace "Using formatters from default_formatter_rules[%d] (%s) for field name %s", $i, $r->{formatters}, $field_name0;
                             $default_formatter = $r->{formatter};
                             last RULE;
