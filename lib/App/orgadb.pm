@@ -42,12 +42,22 @@ sub _select_single {
     my $res = [200, "OK", ""];
 
     my $formatter;
-    if ($args{formatters} && @{ $args{formatters} }) {
+    if (!$args{no_formatters} && $args{formatters} && @{ $args{formatters} }) {
         my @filter_names;
         for my $f (@{ $args{formatters} }) {
             if ($f =~ /\A\[/) {
                 require JSON::PP;
                 $f = JSON::PP::decode_json($f);
+            } else {
+                if ($f =~ /(.+)=(.*)/) {
+                    my ($modname, $args) = ($1, $2);
+                    # normalize / to :: in the module name part
+                    $modname =~ s!/!::!g;
+                    $f = [$modname, { split /,/, $args }];
+                } else {
+                    # normalize / to ::
+                    $f =~ s!/!::!g;
+                }
             }
             push @filter_names, $f;
         }
@@ -222,10 +232,10 @@ sub _select_single {
                         $res->[2] .= $field_name;
                     }
 
-                    my $field_value = $field->children_as_string;
-                    $field_value =~ s/\A\s+//s if $args{hide_field_name};
+                    my $field_value0 = $field->children_as_string;
+                    my ($prefix, $field_value, $suffix) = $field_value0 =~ /\A(\s+)(.*?)(\s*)\z/s;
                     $field_value = $formatter->($field_value) if $formatter;
-                    $res->[2] .= $field_value;
+                    $res->[2] .= ($args{hide_field_name} ? "" : $prefix) . $field_value . $suffix;
                 }
             }
         }

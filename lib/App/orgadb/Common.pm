@@ -198,7 +198,6 @@ our %argspecs_common = (
         'x.name.singular' => 'file',
         schema => ['array*', of=>'filename*', min_len=>1],
         'x.element_completion' => ['filename', {file_ext_filter=>[qw/org ORG/]}],
-        cmdline_aliases=>{f=>{}},
         tags => ['category:input'],
     },
     reload_files_on_change => {
@@ -315,6 +314,11 @@ our %argspecs_select = (
         summary => 'Return just the number of matching entries instead of showing them',
         schema => 'true*',
     },
+    no_formatters => {
+        summary => 'Do not apply any formatters to field value (overrides --formatter option)',
+        schema => 'true*',
+        cmdline_aliases => {raw_field_values=>{}, F=>{}},
+    },
     formatters => {
         'x.name.is_plural' => 1,
         'x.name.singular' => 'formatter',
@@ -329,7 +333,7 @@ our %argspecs_select = (
                 ns_prefix => 'Data::Sah::Filter::perl',
             );
         },
-        cmdline_aliases => {F=>{}},
+        cmdline_aliases => {f=>{}},
         tags => ['category:display'],
         description => <<'_',
 
@@ -347,6 +351,7 @@ If formatter name begins with `[` character, it will be parsed as JSON. Example:
 
  ['Str::remove_comment', {'style':'cpp'}]
 
+Overridden by the `--no-formatters` (`--raw-field-values`, `-F`) option.
 
 _
     },
