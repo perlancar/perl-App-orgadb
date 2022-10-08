@@ -1,3 +1,11 @@
+0.010   2022-10-09  Released-By: PERLANCAR; Urgency: medium
+
+        - [bugfix] We were repeatedly forming regex from string
+          (stringified regex) in --default-formatter-rules.
+
+        - Add categories for --no-formatters & --default-formatter-rules.
+
+
 0.009   2022-10-08  Released-By: PERLANCAR; Urgency: medium; Backward-Incompatible: yes
 
         [INCOMPATIBLE CHANGES]
