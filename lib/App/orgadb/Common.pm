@@ -318,6 +318,7 @@ our %argspecs_select = (
         summary => 'Do not apply any formatters to field value (overrides --formatter option)',
         schema => 'true*',
         cmdline_aliases => {raw_field_values=>{}, F=>{}},
+        tags => ['category:display'],
     },
     default_formatter_rules => {
         'x.name.is_plural' => 1,
@@ -332,6 +333,7 @@ An example:
     default_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i","formatters":[ ["Phone::format_phone_idn"] ]}
 
 _
+        tags => ['category:display'],
     },
     formatters => {
         'x.name.is_plural' => 1,
