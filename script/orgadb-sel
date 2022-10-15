@@ -25,6 +25,17 @@ $cmdline->run;
 
 =head1 SYNOPSIS
 
+# BEGIN_CODE
+# show generated usage line
+require App::orgadb;
+require Perinci::Sub::To::CLIDocData;
+my $res = Perinci::Sub::To::CLIDocData::gen_cli_doc_data_from_meta(meta => $App::orgadb::SPEC{select});
+die "Can't gen_cli_doc_data_from_meta(): $res->[0] - $res->[1]" if $res->[0] != 200;
+my $usage = $res->[2]{'usage_line.alt.fmt.pod'};
+$usage =~ s/\[\[prog\]\]/B<orgadb-sel>/;
+print "$usage\n\n";
+# END_CODE
+
 First, create a configuration file F<~/.config/orgadb.conf> containing something
 like the following (use INI syntax, or L<IOD> to be more exact):
 

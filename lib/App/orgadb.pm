@@ -449,3 +449,11 @@ sub select {
 #ABSTRACT:
 
 =head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+This distribution includes the following CLI's:
+
+# INSERT_EXECS_LIST
+
+=cut
