@@ -159,8 +159,8 @@ To display Lisa's full entry:
 
 =head2 Filtering entries by the fields they have
 
-Aside from filterin by category, we can filter entries by the fields they have.
-For example, to only list entries that have 'bank information' field:
+Aside from by category, we can filter entries by the fields they have. For
+example, to only list entries that have 'bank information' field:
 
  % orgadb-sel --filter-entries-by-fields '/bank information/'
 

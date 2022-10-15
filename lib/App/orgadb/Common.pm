@@ -413,8 +413,8 @@ If formatter name begins with `[` character, it will be parsed as JSON. Example:
 
  ['Str::remove_comment', {'style':'cpp'}]
 
-Note that this option verrides `--default-formatter-rules` but overridden by the
-`--no-formatters` (`--raw-field-values`, `-F`) option.
+Note that this option overrides `--default-formatter-rules` but is overridden by
+the `--no-formatters` (`--raw-field-values`, `-F`) option.
 
 _
     },
