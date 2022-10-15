@@ -1,3 +1,15 @@
+0.011   2022-10-15  Released-By: PERLANCAR; Urgency: medium
+
+        [cli orgadb-sel]
+
+        - Add --clipboard option.
+
+        - [doc] [cli orgadb-sel] Show complete usage line in POD.
+
+        - Improve default formatting rules: add condition key 'hide_field_name',
+          all rules are now evaluated and all formatters from matching, expand
+          docs.
+
 0.010   2022-10-09  Released-By: PERLANCAR; Urgency: medium
 
         - [bugfix] We were repeatedly forming regex from string
