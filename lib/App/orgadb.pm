@@ -43,11 +43,12 @@ sub _select_single {
 
     my @parsed_default_formatter_rules;
 
-    my ($formatter, @filter_names);
+    my $formatter;
   SET_FORMATTERS:
     {
         last if $args{no_formatters};
         last unless $args{formatters} && @{ $args{formatters} };
+        my @filter_names;
         for my $f (@{ $args{formatters} }) {
             if ($f =~ /\A\[/) {
                 require JSON::PP;
@@ -237,14 +238,18 @@ sub _select_single {
                         $res->[2] .= $field_name;
                     }
 
-                    my ($default_formatter);
+                    my $default_formatter;
                   SET_DEFAULT_FORMATTERS:
                     {
                         last if $args{no_formatters};
                         last if $formatter;
                         last unless $args{default_formatter_rules} && @{ $args{default_formatter_rules} };
+
+                        my $default_formatters = [];
                         unless (@parsed_default_formatter_rules) {
+                            my $i = -1;
                             for my $r0 (@{ $args{default_formatter_rules} }) {
+                                $i++;
                                 my $r;
                                 if (!ref($r0) && $r0 =~ /\A\{/) {
                                     require JSON::PP;
@@ -260,7 +265,7 @@ sub _select_single {
                                 }
 
                                 if ($r->{formatters} && @{ $r->{formatters} }) {
-                                    my @filter_names2;
+                                    my @filter_names;
                                     for my $f (@{ $r->{formatters} }) {
                                         if ($f =~ /\A\[/) {
                                             require JSON::PP;
@@ -276,13 +281,15 @@ sub _select_single {
                                                 $f =~ s!/!::!g;
                                             }
                                         }
-                                        push @filter_names2, $f;
+                                        push @filter_names, $f;
                                     }
                                     require Data::Sah::Filter;
                                     $r->{formatter} = Data::Sah::Filter::gen_filter(
-                                        filter_names => \@filter_names2,
+                                        filter_names => \@filter_names,
                                         return_type => 'str_errmsg+val',
                                     );
+                                } else {
+                                    die "Default formatting rules [$i] does not have non-empty formatters: %s", $r;
                                 }
                                 push @parsed_default_formatter_rules, $r;
                             }
@@ -302,9 +309,31 @@ sub _select_single {
                                     next RULE;
                                 };
                             }
-                            log_trace "Using formatters from default_formatter_rules[%d] (%s) for field name %s", $i, $r->{formatters}, $field_name0;
-                            $default_formatter = $r->{formatter};
-                            last RULE;
+                            if (defined $r->{hide_field_name}) {
+                                if ($args{hide_field_name} xor $r->{hide_field_name}) {
+                                    $matches = 0;
+                                    log_trace "Skipping default_formatter_rules[%d]: hide_field_name condition (%s) doesn't match actual hide_field_name option (%s)", $i, ($r->{hide_field_name} ? 'true':'false'), ($args{hide_field_name} ? 'true':'false');
+                                    next RULE;
+                                }
+                            }
+                            log_trace "Adding formatters from default_formatter_rules[%d] (%s) for field name %s", $i, $r->{formatters}, $field_name0;
+                            push @$default_formatters, $r->{formatter};
+                        }
+                        # combine default formatters
+                        last unless @$default_formatters;
+                        if (@$default_formatters > 1) {
+                            $default_formatter = sub {
+                                my $val = shift;
+                                my $res;
+                                for my $i (0 .. $#{$default_formatters}) {
+                                    $res = $default_formatters->[$i]->($val);
+                                    return $res if $res->[0];
+                                    $val = $res->[1];
+                                }
+                                $res;
+                            };
+                        } else {
+                            $default_formatter = $default_formatters->[0];
                         }
                     } # SET_DEFAULT_FORMATTERS
 
@@ -313,7 +342,7 @@ sub _select_single {
                     if ($formatter || $default_formatter) {
                         my ($ferr, $fres) = @{ ($formatter || $default_formatter)->($field_value) };
                         if ($ferr) {
-                            log_warn "Formatting error: field value=%s, formatters=%s, errmsg=%s", $field_value, \@filter_names, $ferr;
+                            log_warn "Formatting error: field value=%s, errmsg=%s", $field_value, $ferr;
                             $field_value = "$field_value # CAN'T FORMAT: $ferr";
                         } else {
                             $field_value = $fres;

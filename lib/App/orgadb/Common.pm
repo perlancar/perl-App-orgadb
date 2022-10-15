@@ -317,20 +317,61 @@ our %argspecs_select = (
     no_formatters => {
         summary => 'Do not apply any formatters to field value (overrides --formatter option)',
         schema => 'true*',
+        description => <<'_',
+
+Note that this option has higher precedence than `--default-formatter-rules` or
+the `--formatter` option.
+
+_
         cmdline_aliases => {raw_field_values=>{}, F=>{}},
         tags => ['category:display'],
     },
     default_formatter_rules => {
         'x.name.is_plural' => 1,
         'x.name.singular' => 'default_formatter_rule',
-        schema => ['array*', of=>'any*'],
+        schema => ['array*', of=>'hash*'],
         description => <<'_',
 
-Specify conditional default formatters. This is for convenience and best
-specified in the configuration as opposed to on the command-line option.
-An example:
+Specify conditional default formatters, as an array of hashes. Each element is a
+rule that is specified as a hash containing condition keys and formatters keys.
+If all conditions are met then the formatters will be applied. The rules will be
+tested when each field is about to be outputted. Multiple rules can match and
+the matching rules' formatters are all applied in succession.
 
-    default_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i","formatters":[ ["Phone::format_phone_idn"] ]}
+Note that this option will be overridden by the `--formatter` or the
+`--no-formatters` (`-F`) option.
+
+Default formatters are best specified in the configuration as opposed to on the
+command-line option. An example (the lines below are writen in configuration
+file in IOD syntax, as rows of JSON hashes):
+
+    ; by default remove all comments in field values when 'hide_field_name'
+    ; option is set (which usually means we want to copy paste things)
+    default_formatter_rules={"hide_field_name":true, "formatters":[ ["Str::remove_comment"] ]}
+
+    ; by default normalize phone numbers using Phone::format_phone_idn_nospace
+    ; when 'hide_field_name' option is set (which usually means we want to copy
+    ; paste things). e.g. '0812-1234-5678' becomes '+6281212345678'.
+    default_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i", "hide_field_name":true, "formatters":[ ["Phone::format_phone_idn_nospace"] ]}
+
+    ; but if 'hide_field_name' field is not set, normalize phone numbers using
+    ; Phone::format_phone_idn which is more easier to see (e.g. '+62 812 1234
+    ; 5678').
+    default_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i", "hide_field_name":false, "formatters":[ ["Phone::format_phone_idn_nospace"] ]}
+
+Condition keys:
+
+* `field_name_matches` (value: str/re): Check if field name matches a regex pattern.
+
+* `hide_field_name` (value: bool): Check if `--hide-field-name` (`-N`) option is
+  set (true) or unset (false).
+
+Formatter keys:
+
+* `formatters`: an array of formatters, to be applied. Each formatter is a name
+  of perl Sah filter rule, or a two-element array of perl Sah filter rule name
+  followed by hash containing arguments. See `--formatter` for more detais on
+  specifying formatter.
 
 _
         tags => ['category:display'],
@@ -367,8 +408,8 @@ If formatter name begins with `[` character, it will be parsed as JSON. Example:
 
  ['Str::remove_comment', {'style':'cpp'}]
 
-Overrides `--default_formatter_rule` but overridden by the `--no-formatters`
-(`--raw-field-values`, `-F`) option.
+Note that this option verrides `--default-formatter-rules` but overridden by the
+`--no-formatters` (`--raw-field-values`, `-F`) option.
 
 _
     },
