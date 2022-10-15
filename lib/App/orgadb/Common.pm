@@ -291,24 +291,24 @@ our %argspecs_select = (
         summary => 'Do not show category',
         schema => 'true*',
         cmdline_aliases => {C=>{}},
-        tags => ['category:display'],
+        tags => ['category:output'],
     },
     hide_entry => {
         summary => 'Do not show entry headline',
         schema => 'true*',
         cmdline_aliases => {E=>{}},
-        tags => ['category:display'],
+        tags => ['category:output'],
     },
     hide_field_name => {
         summary => 'Do not show field names, just show field values',
         schema => 'true*',
         cmdline_aliases => {N=>{}},
-        tags => ['category:display'],
+        tags => ['category:output'],
     },
     detail => {
         schema => 'bool*',
         cmdline_aliases => {l=>{}},
-        tags => ['category:display'],
+        tags => ['category:output'],
     },
     count => {
         summary => 'Return just the number of matching entries instead of showing them',
@@ -324,7 +324,7 @@ the `--formatter` option.
 
 _
         cmdline_aliases => {raw_field_values=>{}, F=>{}},
-        tags => ['category:display'],
+        tags => ['category:output'],
     },
     default_formatter_rules => {
         'x.name.is_plural' => 1,
@@ -374,7 +374,7 @@ Formatter keys:
   specifying formatter.
 
 _
-        tags => ['category:display'],
+        tags => ['category:output'],
     },
     formatters => {
         'x.name.is_plural' => 1,
@@ -391,7 +391,7 @@ _
             );
         },
         cmdline_aliases => {f=>{}},
-        tags => ['category:display'],
+        tags => ['category:output'],
         description => <<'_',
 
 Specify one or more formatters to apply to the field value before displaying.
@@ -417,12 +417,12 @@ _
     num_entries => {
         summary => 'Specify maximum number of entries to return (0 means unlimited)',
         schema => 'uint*',
-        tags => ['category:result'],
+        tags => ['category:output'],
     },
     num_fields => {
         summary => 'Specify maximum number of fields (per entry) to return (0 means unlimited)',
         schema => 'uint*',
-        tags => ['category:result'],
+        tags => ['category:output'],
     },
 
     %argspecopt_filter_entry_by_fields,
