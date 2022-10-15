@@ -284,9 +284,14 @@ our %argspecopt1_field = (
 );
 
 our %argspecs_select = (
+
     %argspecopt0_entry,
-    %argspecopt1_field,
+
     %argspecopt_category,
+
+    %argspecopt1_field,
+    %argspecopt_filter_entry_by_fields,
+
     hide_category => {
         summary => 'Do not show category',
         schema => 'true*',
@@ -425,7 +430,23 @@ _
         tags => ['category:output'],
     },
 
-    %argspecopt_filter_entry_by_fields,
+    clipboard => {
+        summary => 'Whether to copy matching field values to clipboard',
+        schema => ['str*', in=>[qw/tee only/]],
+        description => <<'_',
+
+If set to `tee`, then will display matching fields to terminal as well as copy
+matching field values to clipboard.
+
+If set to `only`, then will not display matching fields to terminal and will
+only copy matching field values to clipboard.
+
+_
+        cmdline_aliases => {
+            clipboard_only => {is_flag=>1, summary=>'Alias for --clipboard=only', code=>sub { $_[0]{clipboard} = 'only' }},
+        },
+        tags => ['category:output'],
+    },
 );
 
 1;

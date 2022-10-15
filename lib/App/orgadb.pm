@@ -40,6 +40,7 @@ sub _select_single {
     my $tree_filenames = $args{_tree_filenames};
 
     my $res = [200, "OK", ""];
+    my @outputted_field_values;
 
     my @parsed_default_formatter_rules;
 
@@ -235,7 +236,9 @@ sub _select_single {
                             $re_field,
                             $field->bullet . ' ' . $field_name0,
                         ) . " ::";
-                        $res->[2] .= $field_name;
+                        unless ($args{clipboard} && $args{clipboard} eq 'only') {
+                            $res->[2] .= $field_name;
+                        }
                     }
 
                     my $default_formatter;
@@ -348,9 +351,24 @@ sub _select_single {
                             $field_value = $fres;
                         }
                     }
-                    $res->[2] .= ($args{hide_field_name} ? "" : $prefix) . $field_value . $suffix;
+                    unless ($args{clipboard} && $args{clipboard} eq 'only') {
+                        $res->[2] .= ($args{hide_field_name} ? "" : $prefix) . $field_value . $suffix;
+                    }
+                    push @outputted_field_values, $field_value;
                 }
             }
+        }
+    }
+
+  COPY_TO_CLIPBOARD: {
+        last unless $args{clipboard};
+        last unless @outputted_field_values;
+        require Clipboard::Any;
+        log_info "Copying matching field values to clipboard ...";
+        my $res = Clipboard::Any::add_clipboard_content(content => join "\n", @outputted_field_values);
+        if ($res->[0] != 200) {
+            log_warn "Cannot copy to clipboard: $res->[0] - $res->[1]";
+            last;
         }
     }
 
