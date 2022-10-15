@@ -362,7 +362,7 @@ file in IOD syntax, as rows of JSON hashes):
     ; but if 'hide_field_name' field is not set, normalize phone numbers using
     ; Phone::format_phone_idn which is more easier to see (e.g. '+62 812 1234
     ; 5678').
-    default_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i", "hide_field_name":false, "formatters":[ ["Phone::format_phone_idn_nospace"] ]}
+    default_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i", "hide_field_name":false, "formatters":[ ["Phone::format_phone_idn"] ]}
 
 Condition keys:
 

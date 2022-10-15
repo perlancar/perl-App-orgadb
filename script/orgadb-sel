@@ -171,7 +171,7 @@ Another example, to only include entries that have 'deceased' field set to
 
 =head2 Searching fields
 
-To get Lisa's cell phone number (search against field):
+To get Lisa's cell phone number (search against field name):
 
  % orgadb-sel lisa cell
  ** work > newsradio/lisa
