@@ -1,10 +1,17 @@
+0.012   2022-10-15  Released-By: PERLANCAR; Urgency: low
+
+        - Fix typos in documentation.
+
+        - [build] Rebuild to improve generated POD.
+
+
 0.011   2022-10-15  Released-By: PERLANCAR; Urgency: medium
 
         [cli orgadb-sel]
 
         - Add --clipboard option.
 
-        - [doc] [cli orgadb-sel] Show complete usage line in POD.
+        - [doc] Show complete usage line in POD.
 
         - Improve default formatting rules: add condition key 'hide_field_name',
           all rules are now evaluated and all formatters from matching, expand
