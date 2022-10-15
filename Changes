@@ -1,5 +1,7 @@
 0.012   2022-10-15  Released-By: PERLANCAR; Urgency: low
 
+        - No functional changes.
+
         - Fix typos in documentation.
 
         - [build] Rebuild to improve generated POD.
