@@ -42,15 +42,15 @@ sub _select_single {
     my $res = [200, "OK", ""];
     my @outputted_field_values;
 
-    my @parsed_default_formatter_rules;
+    my @parsed_field_value_formatter_rules;
 
-    my $formatter;
-  SET_FORMATTERS:
+    my $field_value_formatter_from_args;
+  SET_FIELD_VALUE_FORMATTERS_FROM_ARGS:
     {
-        last if $args{no_formatters};
-        last unless $args{formatters} && @{ $args{formatters} };
+        last if $args{no_field_value_formatters};
+        last unless $args{field_value_formatters} && @{ $args{field_value_formatters} };
         my @filter_names;
-        for my $f (@{ $args{formatters} }) {
+        for my $f (@{ $args{field_value_formatters} }) {
             if ($f =~ /\A\[/) {
                 require JSON::PP;
                 $f = JSON::PP::decode_json($f);
@@ -68,7 +68,7 @@ sub _select_single {
             push @filter_names, $f;
         }
         require Data::Sah::Filter;
-        $formatter = Data::Sah::Filter::gen_filter(
+        $field_value_formatter_from_args = Data::Sah::Filter::gen_filter(
             filter_names => \@filter_names,
             return_type => 'str_errmsg+val',
         );
@@ -241,17 +241,17 @@ sub _select_single {
                         }
                     }
 
-                    my $default_formatter;
-                  SET_DEFAULT_FORMATTERS:
+                    my $field_value_formatter_from_rules;
+                  SET_FIELD_VALUE_FORMATTERS_FROM_RULES:
                     {
-                        last if $args{no_formatters};
-                        last if $formatter;
-                        last unless $args{default_formatter_rules} && @{ $args{default_formatter_rules} };
+                        last if $args{no_field_value_formatters};
+                        last if $field_value_formatter_from_args;
+                        last unless $args{field_value_formatter_rules} && @{ $args{field_value_formatter_rules} };
 
-                        my $default_formatters = [];
-                        unless (@parsed_default_formatter_rules) {
+                        my $field_value_formatters_from_rules = [];
+                        unless (@parsed_field_value_formatter_rules) {
                             my $i = -1;
-                            for my $r0 (@{ $args{default_formatter_rules} }) {
+                            for my $r0 (@{ $args{field_value_formatter_rules} }) {
                                 $i++;
                                 my $r;
                                 if (!ref($r0) && $r0 =~ /\A\{/) {
@@ -292,60 +292,60 @@ sub _select_single {
                                         return_type => 'str_errmsg+val',
                                     );
                                 } else {
-                                    die "Default formatting rules [$i] does not have non-empty formatters: %s", $r;
+                                    die "Field value formatting rules [$i] does not have non-empty formatters: %s", $r;
                                 }
-                                push @parsed_default_formatter_rules, $r;
+                                push @parsed_field_value_formatter_rules, $r;
                             }
-                            #log_error "parsed_default_formatter_rules=%s", \@parsed_default_formatter_rules;
-                        } # set @parsed_default_formatter_rules
+                            #log_error "parsed_field_value_formatter_rules=%s", \@parsed_field_value_formatter_rules;
+                        } # set @parsed_field_value_formatter_rules
 
                         # do the filtering
                         my $i = -1;
                       RULE:
-                        for my $r (@parsed_default_formatter_rules) {
+                        for my $r (@parsed_field_value_formatter_rules) {
                             $i++;
                             my $matches = 1;
                             if (defined $r->{field_name_matches}) {
                                 $field_name0 =~ $r->{field_name_matches} or do {
                                     $matches = 0;
-                                    log_trace "Skipping default_formatter_rules[%d]: field_name_matches %s doesn't match %s", $i, $r->{field_name_matches}, $field_name0;
+                                    log_trace "Skipping field_value_formatter_rules[%d]: field_name_matches %s doesn't match %s", $i, $r->{field_name_matches}, $field_name0;
                                     next RULE;
                                 };
                             }
                             if (defined $r->{hide_field_name}) {
                                 if ($args{hide_field_name} xor $r->{hide_field_name}) {
                                     $matches = 0;
-                                    log_trace "Skipping default_formatter_rules[%d]: hide_field_name condition (%s) doesn't match actual hide_field_name option (%s)", $i, ($r->{hide_field_name} ? 'true':'false'), ($args{hide_field_name} ? 'true':'false');
+                                    log_trace "Skipping field_value_formatter_rules[%d]: hide_field_name condition (%s) doesn't match actual hide_field_name option (%s)", $i, ($r->{hide_field_name} ? 'true':'false'), ($args{hide_field_name} ? 'true':'false');
                                     next RULE;
                                 }
                             }
-                            log_trace "Adding formatters from default_formatter_rules[%d] (%s) for field name %s", $i, $r->{formatters}, $field_name0;
-                            push @$default_formatters, $r->{formatter};
+                            log_trace "Adding field value formatters from field_value_formatter_rules[%d] (%s) for field name %s", $i, $r->{formatters}, $field_name0;
+                            push @$field_value_formatters_from_rules, $r->{formatter};
                         }
                         # combine default formatters
-                        last unless @$default_formatters;
-                        if (@$default_formatters > 1) {
-                            $default_formatter = sub {
+                        last unless @$field_value_formatters_from_rules;
+                        if (@$field_value_formatters_from_rules > 1) {
+                            $field_value_formatter_from_rules = sub {
                                 my $val = shift;
                                 my $res;
-                                for my $i (0 .. $#{$default_formatters}) {
-                                    $res = $default_formatters->[$i]->($val);
+                                for my $i (0 .. $#{$field_value_formatters_from_rules}) {
+                                    $res = $field_value_formatters_from_rules->[$i]->($val);
                                     return $res if $res->[0];
                                     $val = $res->[1];
                                 }
                                 $res;
                             };
                         } else {
-                            $default_formatter = $default_formatters->[0];
+                            $field_value_formatter_from_rules = $field_value_formatters_from_rules->[0];
                         }
-                    } # SET_DEFAULT_FORMATTERS
+                    } # SET_FIELD_VALUE_FORMATTERS_FROM_RULES
 
                     my $field_value0 = $field->children_as_string;
                     my ($prefix, $field_value, $suffix) = $field_value0 =~ /\A(\s+)(.*?)(\s*)\z/s;
-                    if ($formatter || $default_formatter) {
-                        my ($ferr, $fres) = @{ ($formatter || $default_formatter)->($field_value) };
+                    if ($field_value_formatter_from_args || $field_value_formatter_from_rules) {
+                        my ($ferr, $fres) = @{ ($field_value_formatter_from_args || $field_value_formatter_from_rules)->($field_value) };
                         if ($ferr) {
-                            log_warn "Formatting error: field value=%s, errmsg=%s", $field_value, $ferr;
+                            log_warn "Field value formatting error: field value=%s, errmsg=%s", $field_value, $ferr;
                             $field_value = "$field_value # CAN'T FORMAT: $ferr";
                         } else {
                             $field_value = $fres;
