@@ -27,13 +27,21 @@ $cmdline->run;
 
 # BEGIN_CODE
 # show generated usage line
+
 require App::orgadb;
+require Perinci::CmdLine::Dump;
+
+my $res = Perinci::CmdLine::Dump::dump_pericmd_script(filename=>"script/orgadb-sel", libs=>["lib"]);
+die "Can't dump script/orgadb-sel: $res->[0] - $res->[1]" unless $res->[0] == 200;
+my $cli = $res->[2];
+
 require Perinci::Sub::To::CLIDocData;
-my $res = Perinci::Sub::To::CLIDocData::gen_cli_doc_data_from_meta(meta => $App::orgadb::SPEC{select});
+$res = Perinci::Sub::To::CLIDocData::gen_cli_doc_data_from_meta(meta => $App::orgadb::SPEC{select}, common_opts => $cli->{common_opts});
 die "Can't gen_cli_doc_data_from_meta(): $res->[0] - $res->[1]" if $res->[0] != 200;
 my $usage = $res->[2]{'usage_line.alt.fmt.pod'};
 $usage =~ s/\[\[prog\]\]/B<orgadb-sel>/;
 print "$usage\n\n";
+
 # END_CODE
 
 First, create a configuration file F<~/.config/orgadb.conf> containing something
