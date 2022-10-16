@@ -1,3 +1,17 @@
+0.013   2022-10-16  Released-By: PERLANCAR; Backward-Incompatible: yes
+
+        [cli orgadb-sel]
+
+        - [incompatible change] Rename --formatter to --field-value-formatter
+          (alias --fvfmt) to avoid ambiguity with --format. Also,
+          --no-formatters becomes --no-field-value-formatters,
+          --default-formatter-rules becomes --field-value-formatter-rules.
+
+        - [bugfix][doc] Usage line didn't yet include common options.
+
+        - Doc tweaks & typos.
+
+
 0.012   2022-10-15  Released-By: PERLANCAR; Urgency: low
 
         - No functional changes.
