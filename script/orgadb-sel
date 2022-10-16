@@ -231,9 +231,9 @@ print matching fields to terminal:
 
 =head2 Shell mode
 
-Instead of selecting one time and exiting, you can instruct B<orgadb> to enter
-shell mode, where you can issue multiple select commands without re-reading the
-Org addressbook files repeatedly. For example:
+Instead of selecting one time and exiting, you can instruct B<orgadb-sel> to
+enter shell mode, where you can issue multiple select commands without
+re-reading the Org addressbook files repeatedly. For example:
 
  % orgadb-sel -s
  > select lisa
@@ -250,12 +250,12 @@ When the addressbook files change on disk, the files will be re-read.
 
 =head2 Password book
 
-Aside from a regular addressbook, you can also use B<orgadb> with password books
-(a file you store passwords in). B<orgadb> can read GnuPG-encrypted files, where
-the decrypted content is read into memory and not stored in temporary files. You
-can then use shell mode (C<-s>) to repeatedly query the password book without
-re-reading and re-decrypting everytime. For example, suppose you have a password
-book like this:
+Aside from a regular addressbook, you can also use B<orgadb-sel> with password
+books (a file you store passwords in). B<orgadb-sel> can read GnuPG-encrypted
+files, where the decrypted content is read into memory and not stored in
+temporary files. You can then use shell mode (C<-s>) to repeatedly query the
+password book without re-reading and re-decrypting everytime. For example,
+suppose you have a password book like this:
 
  # -*- Mode: org -*-
  * persona > perlancar
@@ -286,13 +286,6 @@ and you store it in C<~/passwords.gpg>. Then to query passwords:
  % orgadb-sel -f ~/passwords.gpg /google.+steven/ '/phone|cell/' -EN
  555-123-2345
 
-The C<--clipboard=only> option is handy when querying password book; you can
-choose to output field values only to clipboard instead of to terminal:
-
- # What's my (perlancar)'s google password?
- % orgadb-sel -f ~/passwords.gpg /google.+perlancar/ pass -EN --clipboard=only
-
-
 Or, in shell mode:
 
  % orgadb-sel -f ~/passwords.gpg -s
@@ -303,6 +296,12 @@ Or, in shell mode:
  > exit
 
  % _
+
+The C<--clipboard=only> option is handy when querying password book; you can
+choose to output field values only to clipboard instead of to terminal:
+
+ # What's my (perlancar)'s google password?
+ % orgadb-sel -f ~/passwords.gpg /google.+perlancar/ pass -EN --clipboard=only
 
 
 =head1 DESCRIPTION
