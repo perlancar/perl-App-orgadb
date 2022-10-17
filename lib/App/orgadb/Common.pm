@@ -366,19 +366,22 @@ The rules are best specified in the configuration as opposed to on the
 command-line option. An example (the lines below are writen in configuration
 file in IOD syntax, as rows of JSON hashes):
 
-    ; by default remove all comments in field values when 'hide_field_name'
-    ; option is set (which usually means we want to copy paste things)
+    ; remove all comments in field values when 'hide_field_name' option is set
+    ; (which usually means we want to copy paste things)
+
     field_value_formatter_rules={"hide_field_name":true, "formatters":[ ["Str::remove_comment"] ]}
 
-    ; by default normalize phone numbers using Phone::format_phone_idn_nospace
-    ; when 'hide_field_name' option is set (which usually means we want to copy
-    ; paste things). e.g. '0812-1234-5678' becomes '+6281212345678'.
-    field_value_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i", "hide_field_name":true, "formatters":[ ["Phone::format_phone_idn_nospace"] ]}
+    ; normalize phone numbers using Phone::format + Str::remove_whitespace when
+    ; 'hide_field_name' option is set (which usually means we want to copy paste
+    ; things). e.g. '0812-1234-5678' becomes '+6281212345678'.
+
+    field_value_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i", "hide_field_name":true, "formatters":[ ["Phone::format", "Str::remove_whitespace"] ]}
 
     ; but if 'hide_field_name' field is not set, normalize phone numbers using
-    ; Phone::format_phone_idn which is more easier to see (e.g. '+62 812 1234
-    ; 5678').
-    field_value_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i", "hide_field_name":false, "formatters":[ ["Phone::format_phone_idn"] ]}
+    ; Phone::format without removing whitespaces, which is easier to see (e.g.
+    ; '+62 812 1234 5678').
+
+    field_value_formatter_rules={"field_name_matches":"/phone|wa|whatsapp/i", "hide_field_name":false, "formatters":[ ["Phone::format"] ]}
 
 Condition keys:
 
@@ -411,7 +414,14 @@ _
                 ns_prefix => 'Data::Sah::Filter::perl',
             );
         },
-        cmdline_aliases => {fvfmt=>{}, f=>{}},
+        cmdline_aliases => {
+            fvfmt=>{},
+            f=>{},
+            remove_nondigits   => {is_flag=>1, summary=>'Shortcut for --field-value-formatter Str::remove_nondigit'   , code=>sub { $_[0]{field_value_formatters} //= []; push @{ $_[0]{field_value_formatters} }, 'Str::remove_nondigit'   } },
+            remove_comments    => {is_flag=>1, summary=>'Shortcut for --field-value-formatter Str::remove_comment'    , code=>sub { $_[0]{field_value_formatters} //= []; push @{ $_[0]{field_value_formatters} }, 'Str::remove_comment'    } },
+            remove_whitespaces => {is_flag=>1, summary=>'Shortcut for --field-value-formatter Str::remove_whitespaces', code=>sub { $_[0]{field_value_formatters} //= []; push @{ $_[0]{field_value_formatters} }, 'Str::remove_whitespace' } },
+            format_phone       => {is_flag=>1, summary=>'Shortcut for --field-value-formatter Phone::format'          , code=>sub { $_[0]{field_value_formatters} //= []; push @{ $_[0]{field_value_formatters} }, 'Phone::format'          } },
+        },
         tags => ['category:output'],
         description => <<'_',
 
