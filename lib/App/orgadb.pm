@@ -83,7 +83,7 @@ sub _select_single {
         my $expr = '';
 
         if (defined $args{category}) {
-            $expr .= 'Headline[level=1][title.text';
+            $expr .= 'Headline[level=1][title.as_string';
             if (ref $args{category} eq 'Regexp') {
                 $re_category = $args{category};
             } else {
@@ -95,7 +95,7 @@ sub _select_single {
 
         $expr .= (length $expr ? " " : "") . 'Headline[level=2]';
         if (defined $args{entry}) {
-            $expr .= '[title.text';
+            $expr .= '[title.as_string';
             if (ref $args{entry} eq 'Regexp') {
                 $re_entry = $args{entry};
             } else {
@@ -207,12 +207,12 @@ sub _select_single {
                     $res->[2] .= _highlight(
                         $clrtheme_obj,
                         $re_category,
-                        $entry->parent->title->text) . "/";
+                        $entry->parent->title->as_string) . "/";
                 }
                 $res->[2] .= _highlight(
                     $clrtheme_obj,
                     $re_entry,
-                    $entry->title->text,
+                    $entry->title->as_string,
                 );
                 $res->[2] .= "\n";
             }
