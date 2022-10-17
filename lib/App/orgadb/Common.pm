@@ -309,11 +309,25 @@ our %argspecs_select = (
         schema => 'true*',
         cmdline_aliases => {N=>{}},
         tags => ['category:output'],
+        description => <<'_',
+
+Mnemonic for short option `-N`: field *N*ame (uppercase letter usually means
+/no/).
+
+_
     },
     detail => {
         schema => 'bool*',
         cmdline_aliases => {l=>{}},
         tags => ['category:output'],
+        description => <<'_',
+
+Instead of showing matching field values, display the whole entry.
+
+Mnemonic for shortcut option `-l`: the option `-l` is usually used for the short
+version of `--detail`, as in *ls* Unix command.
+
+_
     },
     count => {
         summary => 'Return just the number of matching entries instead of showing them',
