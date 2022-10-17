@@ -444,9 +444,13 @@ matching field values to clipboard.
 If set to `only`, then will not display matching fields to terminal and will
 only copy matching field values to clipboard.
 
+Mnemonic for short option `-y` and `-Y`: *y*ank as in Emacs (`C-y`).
+
 _
         cmdline_aliases => {
-            clipboard_only => {is_flag=>1, summary=>'Alias for --clipboard=only', code=>sub { $_[0]{clipboard} = 'only' }},
+            clipboard_only => {is_flag=>1, summary=>'Shortcut for --clipboard=only', code=>sub { $_[0]{clipboard} = 'only' }},
+            y => {is_flag=>1, summary=>'Shortcut for --clipboard=tee', code=>sub { $_[0]{clipboard} = 'tee' }},
+            Y => {is_flag=>1, summary=>'Shortcut for --clipboard=only', code=>sub { $_[0]{clipboard} = 'only' }},
         },
         tags => ['category:output'],
     },

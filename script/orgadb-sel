@@ -213,18 +213,18 @@ You can apply one or more formatters to field values:
 =head2 Copying to clipboard
 
 Instead of just displaying result to terminal, you can instruct to also copy
-matching field values to clipboard:
+matching field values to clipboard with the `--clipboard=tee` (`-y`) option:
 
- % orgadb-sel lisa cell --clipboard tee
+ % orgadb-sel lisa cell -y
  ** work > newsradio/lisa
  - cell :: 555-1234-710
 
 (and clipboard will contain C<555-1234-710>).
 
 You can also instruct to only output matching field values to clipboard and not
-print matching fields to terminal:
+print matching fields to terminal using the `--clipboard=only` (`-Y`) option:
 
- % orgadb-sel lisa cell --clipboard only
+ % orgadb-sel lisa cell -Y
  ** work > newsradio/lisa
 
 (and clipboard will contain C<555-1234-710>).
@@ -297,11 +297,11 @@ Or, in shell mode:
 
  % _
 
-The C<--clipboard=only> option is handy when querying password book; you can
-choose to output field values only to clipboard instead of to terminal:
+The C<--clipboard=only> (C<-Y>) option is handy when querying password book; you
+can choose to output field values only to clipboard instead of to terminal:
 
  # What's my (perlancar)'s google password?
- % orgadb-sel -f ~/passwords.gpg /google.+perlancar/ pass -EN --clipboard=only
+ % orgadb-sel -f ~/passwords.gpg /google.+perlancar/ pass -EN -Y
 
 
 =head1 DESCRIPTION
