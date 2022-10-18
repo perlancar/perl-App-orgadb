@@ -1,6 +1,6 @@
 0.014   2022-10-17  Released-By: PERLANCAR; Urgency: medium
 
-        - Tweak doc, add shortcut options: --remove-nondigits,
+        - Add shortcut options: --remove-nondigits,
           --remove-comments, --remove-whitespaces, --format-phone.
 
         - [bugfix] Non-simple headings (e.g. containing timestamp) were not
