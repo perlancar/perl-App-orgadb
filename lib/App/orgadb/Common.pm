@@ -454,6 +454,7 @@ _
     num_fields => {
         summary => 'Specify maximum number of fields (per entry) to return (0 means unlimited)',
         schema => 'uint*',
+        cmdline_aliases => {n=>{}},
         tags => ['category:output'],
     },
 
