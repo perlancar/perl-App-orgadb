@@ -454,7 +454,10 @@ _
     num_fields => {
         summary => 'Specify maximum number of fields (per entry) to return (0 means unlimited)',
         schema => 'uint*',
-        cmdline_aliases => {n=>{}},
+        cmdline_aliases => {
+            n=>{},
+            1 => {is_flag=>1, summary=>'Shortcut for --num-fields=1', code=>sub { $_[0]{num_fields} = 1 }},
+        },
         tags => ['category:output'],
     },
 
