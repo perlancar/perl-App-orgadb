@@ -333,7 +333,7 @@ Store shell's command history for B<orgadb-sel>.
 
 =head2 Aliasing orgadb-sel to a shorter command name
 
-If you are like me and you select from addressbook a lot, you might want to
+If you are like me and you select from addressbooks a lot, you might want to
 alias C<orgadb-sel> to a shorter name, e.g. C<sel>. To do this, create this
 script somewhere in your PATH:
 
@@ -378,6 +378,15 @@ selecting matching fields:
  % orgadb-sel lisa phone
 
 To disable formatters, use C<--no-formatters> (C<-F>).
+
+=head2 Copying to clipboard
+
+Instead of manually copy-pasting the result of C<orgadb-sel> using your mouse in
+the terminal and pasting to other GUI application (like LibreOffice Writer/Calc,
+WhatsApp Web in Firefox, or whatever), you can instruct C<orgadb-sel> to copy to
+clipboard for you:
+
+ % orgadb-sel -c lisa phone
 
 
 =head1 FAQ
