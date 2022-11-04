@@ -355,7 +355,7 @@ type:
 
  % orgadb-sel --category <tab>        ;# see what categories are available
  % orgadb-sel lis<tab>                ;# complete with entries matching 'lis'
- % orgadb-sel lisa <tab>              ;# complete with available fields or /lisa/ entries
+ % orgadb-sel lisa <tab>              ;# complete with available fields of /lisa/ entries
 
 =head2 Using field formatters
 
