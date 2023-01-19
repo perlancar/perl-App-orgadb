@@ -405,15 +405,12 @@ _
         'x.name.singular' => 'field_value_formatter',
         summary => 'Add one or more formatters to display field value',
         #schema => ['array*', of=>'perl::perl_sah_filter::modname_with_optional_args*'], ## doesn't work yet with Perinci::Sub::GetArgs::Argv
-        schema => ['array*', of=>'str*'],
-        element_completion => sub {
-            require Complete::Module;
-            my %args = @_;
-            Complete::Module::complete_module(
-                word => $args{word},
-                ns_prefix => 'Data::Sah::Filter::perl',
-            );
-        },
+        schema => ['array*', of=>[
+            'str*', {
+                prefilters=>['Perl::normalize_perl_modname'],
+                'x.completion' => ['perl_perl_sah_filter_modname_with_optional_args'],
+            }],
+               ],
         cmdline_aliases => {
             fvfmt=>{},
             f=>{},
