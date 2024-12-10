@@ -251,7 +251,7 @@ our %argspecopt_filter_entry_by_fields = (
         summary => 'Find entry by the fields or subfields it has',
         schema => ['array*', of=> 'str*'],
         tags => ['category:entry-selection'],
-        description => <<'_',
+        description => <<'MARKDOWN',
 
 The format of each entry_by_field is one of:
 
@@ -266,7 +266,7 @@ That is, it can search for a string (`str`) or regex (`re`) in the field name,
 and optionally also search for a string (`str2`) or regex (`re2`) in the field
 value.
 
-_
+MARKDOWN
     },
 );
 
@@ -309,25 +309,25 @@ our %argspecs_select = (
         schema => 'true*',
         cmdline_aliases => {N=>{}},
         tags => ['category:output'],
-        description => <<'_',
+        description => <<'MARKDOWN',
 
 Mnemonic for short option `-N`: field *N*ame (uppercase letter usually means
 /no/).
 
-_
+MARKDOWN
     },
     detail => {
         schema => 'bool*',
         cmdline_aliases => {l=>{}},
         tags => ['category:output'],
-        description => <<'_',
+        description => <<'MARKDOWN',
 
 Instead of showing matching field values, display the whole entry.
 
 Mnemonic for shortcut option `-l`: the option `-l` is usually used for the short
 version of `--detail`, as in *ls* Unix command.
 
-_
+MARKDOWN
     },
     count => {
         summary => 'Return just the number of matching entries instead of showing them',
@@ -336,13 +336,13 @@ _
     no_field_value_formatters => {
         summary => 'Do not apply formatters for field value (overrides --field-value-formatter option)',
         schema => 'true*',
-        description => <<'_',
+        description => <<'MARKDOWN',
 
 Note that this option has higher precedence than
 `--default-field-value-formatter-rules` or the `--field-value-formatter`
 (`--fvfmt`) option.
 
-_
+MARKDOWN
         cmdline_aliases => {raw_field_values=>{}, F=>{}},
         tags => ['category:output'],
     },
@@ -350,7 +350,7 @@ _
         'x.name.is_plural' => 1,
         'x.name.singular' => 'default_field_value_formatter_rule',
         schema => ['array*', of=>'hash*'],
-        description => <<'_',
+        description => <<'MARKDOWN',
 
 Specify field value formatters to use when conditions are met, specified as an
 array of hashes. Each element is a rule that is as a hash containing condition
@@ -397,7 +397,7 @@ Formatter keys:
   followed by hash containing arguments. See `--formatter` for more detais on
   specifying formatter.
 
-_
+MARKDOWN
         tags => ['category:output'],
     },
     field_value_formatters => {
@@ -420,7 +420,7 @@ _
             format_phone       => {is_flag=>1, summary=>'Shortcut for --field-value-formatter Phone::format'          , code=>sub { $_[0]{field_value_formatters} //= []; push @{ $_[0]{field_value_formatters} }, 'Phone::format'          } },
         },
         tags => ['category:output'],
-        description => <<'_',
+        description => <<'MARKDOWN',
 
 Specify one or more formatters to apply to the field value before displaying.
 
@@ -440,7 +440,7 @@ Note that this option overrides `--field-value-formatter-rules` but is
 overridden by the `--no-field-value-formatters` (`--raw-field-values`, `-F`)
 option.
 
-_
+MARKDOWN
     },
 
     num_entries => {
@@ -461,7 +461,7 @@ _
     clipboard => {
         summary => 'Whether to copy matching field values to clipboard',
         schema => ['str*', in=>[qw/tee only/]],
-        description => <<'_',
+        description => <<'MARKDOWN',
 
 If set to `tee`, then will display matching fields to terminal as well as copy
 matching field values to clipboard.
@@ -471,7 +471,7 @@ only copy matching field values to clipboard.
 
 Mnemonic for short option `-y` and `-Y`: *y*ank as in Emacs (`C-y`).
 
-_
+MARKDOWN
         cmdline_aliases => {
             clipboard_only => {is_flag=>1, summary=>'Shortcut for --clipboard=only', code=>sub { $_[0]{clipboard} = 'only' }},
             y => {is_flag=>1, summary=>'Shortcut for --clipboard=tee', code=>sub { $_[0]{clipboard} = 'tee' }},
