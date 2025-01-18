@@ -14,6 +14,34 @@ use App::orgadb::Common;
 
 our %SPEC;
 
+our %FEATURES = (
+    set_v => {PasswordManager => 1},
+    features => {
+        PasswordManager => {
+            can_add_password                         => 0,
+            can_add_note                             => 0,
+            can_add_custom_fields                    => 0,
+
+            can_edit_password                        => 0,
+            can_record_edit_history                  => 0,
+
+            can_delete_password                      => 0,
+
+            can_retrieve_password                    => 1,
+            can_dump_passwords                       => 1,
+
+            can_encrypt_password                     => 1,
+            can_encrypt_label                        => 1,
+            can_encrypt_other_fields                 => 1,
+
+            database_format                          => 'Org',
+            database_format_is_open_standard         => 1,
+            encryption_format                        => 'OpenPGP',
+            encryption_format_is_open_standard       => 1,
+        },
+    },
+);
+
 $SPEC{':package'} = {
     v => 1.1,
     summary => 'An opinionated Org addressbook toolset',
