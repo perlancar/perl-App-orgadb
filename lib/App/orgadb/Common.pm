@@ -286,11 +286,65 @@ our %argspecopt1_field = (
 our %argspecs_select = (
 
     %argspecopt0_entry,
+    entry_match_mode => {
+        summary => 'How entry should be matched',
+        schema => ['str*', in=>['default', 'exact']], # TODO: fuzzy matching
+        default => 'default',
+        description => <<'MARKDOWN',
+
+The default matching mode is as follow:
+
+    str       Substring matching
+    /re/      Regular expression matching
+
+If matching mode is set to `exact`, then matching will be done by string
+equality test. This mode is basically a shorter alternative to having to
+specify:
+
+    /^\Qre\E$/
+
+Matching mode `exact-ci` is like `exact` except case-insensitive. It is
+equivalent to:
+
+    /^\Qre\E$/i
+
+MARKDOWN
+        cmdline_aliases => {
+            x => { is_flag=>1, summary=>'Turn on exact entry matching (shortcut for `--entry-match-mode=exact`)', code => sub { $_[0]{entry_match_mode} = 'exact' } },
+        },
+    },
 
     %argspecopt_category,
 
     %argspecopt1_field,
     %argspecopt_filter_entry_by_fields,
+    field_match_mode => {
+        summary => 'How entry should be matched',
+        schema => ['str*', in=>['default', 'exact', 'exact-ci']], # TODO: fuzzy matching
+        default => 'default',
+        description => <<'MARKDOWN',
+
+The default matching mode is as follow:
+
+    str       Substring matching
+    /re/      Regular expression matching
+
+If matching mode is set to `exact`, then matching will be done by string
+equality test. This mode is basically a shorter alternative to having to
+specify:
+
+    /^\Qre\E$/
+
+Matching mode `exact-ci` is like `exact` except case-insensitive. It is
+equivalent to:
+
+    /^\Qre\E$/i
+
+MARKDOWN
+        cmdline_aliases => {
+            X => { is_flag=>1, summary=>'Turn on exact entry matching (shortcut for `--field-match-mode=exact`)', code => sub { $_[0]{field_match_mode} = 'exact' } },
+        },
+    },
 
     hide_category => {
         summary => 'Do not show category',

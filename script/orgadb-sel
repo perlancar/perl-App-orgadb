@@ -129,6 +129,12 @@ To hide the category prefix, use C<-C> (C<--hide-category>):
  ** satya
  ** lisa
 
+To find exact entry (C<-x>):
+
+ % orgadb-sel -Cx satya
+ ** satya
+
+
 =head2 Filtering entries by categories
 
 To only include entries that have certain category name, use the C<-c> option:

@@ -126,7 +126,10 @@ sub _select_single {
         $expr .= (length $expr ? " " : "") . 'Headline[level=2]';
         if (defined $args{entry}) {
             $expr .= '[title.as_string';
-            if (ref $args{entry} eq 'Regexp') {
+            if ($args{entry_match_mode} =~ /exact/) {
+                $re_entry = quotemeta($args{entry});
+                $re_entry = $args{entry_match_mode} =~ /-ci/ ? qr/^$re_entry$/i : qr/^$re_entry$/;
+            } elsif (ref $args{entry} eq 'Regexp') {
                 $re_entry = $args{entry};
             } else {
                 $re_entry = quotemeta($args{entry});
@@ -207,7 +210,10 @@ sub _select_single {
                         $expr_field .= ($expr_field ? ' > List > ' : 'Headline[level=2] > List > ');
                         $expr_field .= 'ListItem[desc_term.text';
                         my $re_field;
-                        if (ref $field_term eq 'Regexp') {
+                        if ($args{field_match_mode} =~ /exact/) {
+                            $re_field = quotemeta($field_term);
+                            $re_field = $args{field_match_mode} =~ /-ci/ ? qr/^$re_field$/i : qr/^$re_field$/;
+                        } elsif (ref $field_term eq 'Regexp') {
                             $re_field = $field_term;
                         } else {
                             $re_field = quotemeta($field_term);
