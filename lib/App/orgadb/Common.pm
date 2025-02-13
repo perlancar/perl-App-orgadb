@@ -288,7 +288,7 @@ our %argspecs_select = (
     %argspecopt0_entry,
     entry_match_mode => {
         summary => 'How entry should be matched',
-        schema => ['str*', in=>['default', 'exact']], # TODO: fuzzy matching
+        schema => ['str*', in=>['default', 'exact', 'exact-ci']], # TODO: fuzzy matching
         default => 'default',
         description => <<'MARKDOWN',
 
