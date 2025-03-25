@@ -342,7 +342,7 @@ equivalent to:
 
 MARKDOWN
         cmdline_aliases => {
-            X => { is_flag=>1, summary=>'Turn on exact entry matching (shortcut for `--field-match-mode=exact`)', code => sub { $_[0]{field_match_mode} = 'exact' } },
+            X => { is_flag=>1, summary=>'Turn on exact field matching (shortcut for `--field-match-mode=exact`)', code => sub { $_[0]{field_match_mode} = 'exact' } },
         },
     },
 
