@@ -445,14 +445,14 @@ $SPEC{select} = {
         'ORGADB_COLOR_THEME' => {
             summary => 'Set default color theme',
             schema => 'perl::colortheme::modname_with_optional_args*',
-            description => <<'_',
+            description => <<'MARKDOWN',
 
 Color theme is Perl module name under the `ColorTheme::Search::` namespace,
 without the namespace prefix. The default is `Light`. You can set color theme
 using the `--color-theme` command-line option as well as this environment
 variable.
 
-_
+MARKDOWN
         },
     },
 };

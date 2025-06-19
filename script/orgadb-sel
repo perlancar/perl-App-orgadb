@@ -462,3 +462,6 @@ document.
 Other CLI's in this distribution.
 
 Information about the Org format: L<https://orgmode.org>
+
+The format of the addressbook described in this document is compatible
+with L<OrgINI> specification.
